@@ -11,7 +11,7 @@ namespace KreuzungsChaos {
     export class Trafficlight extends GameObject {
 
         public state: STATE;
-        public stateUpdate: number = 0;
+        public stateUpdate: number;
 
         public constructor(_material: fc.Material, _size: fc.Vector2, _position: fc.Vector3, _state: number) {
 
@@ -20,12 +20,15 @@ namespace KreuzungsChaos {
             switch (_state) {
                 case 0:
                     this.state = STATE.ALL_RED;
+                    this.stateUpdate = 0;
                     break;
                 case 1: 
                     this.state = STATE.BOT_RED;
+                    this.stateUpdate = 1;
                     break;
                 case 2: 
                     this.state = STATE.SIDE_RED;
+                    this.stateUpdate = 2;
                     break;
                 default:
                     break;
@@ -44,33 +47,47 @@ namespace KreuzungsChaos {
 
                 this.switchState();
 
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) 
+
+                this.emergency();
+
         }
 
-        public switchState(): number { //Switch state from bot red to side red or the other way around
+        public switchState(): number { // Switch state from bot red to side red or the other way around
 
             console.log("STATE SWITCHED");
             console.log("OLD:" + this.state);
 
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) { 
+                previousState = this.state.valueOf();
                 this.state = STATE.SIDE_RED;
                 this.stateUpdate = 2;
             }
             else {
+                previousState = 2;
                 this.state = STATE.BOT_RED;
                 this.stateUpdate = 1;
             }
             console.log("NEW:" + this.state);
-            console.log("RETURN:" + this.state.valueOf());
             return this.stateUpdate;
 
         }
 
-        public emergency(): void { //Switch state to all red
+        public emergency(): number { // Switch state to all red
 
+            console.log("STATE SWITCHED TO EMERGENCY");
+            console.log("OLD:" + currentState);
+
+            previousState = this.state.valueOf();
+            this.state = STATE.ALL_RED;
+            this.stateUpdate = 0;
+
+            console.log("NEW:" + this.state);
+            
+            return this.stateUpdate;
 
         }
     
-
     }
 
 }

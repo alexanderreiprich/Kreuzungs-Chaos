@@ -7,8 +7,8 @@ namespace KreuzungsChaos {
 
     const clrWhite: fc.Color = fc.Color.CSS("white");
     let trafficlight: Trafficlight;
-    let previousState: number;
-
+    export let currentState: number;
+    export let previousState: number;
     export let viewport: fc.Viewport;
     export let root: fc.Node = new fc.Node("Root");
     let background: fc.Node = new fc.Node("Background");
@@ -21,6 +21,8 @@ namespace KreuzungsChaos {
         const canvas: HTMLCanvasElement = document.querySelector("canvas");
         txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/all_red.png");
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
+        previousState = 0;
+        currentState = 0;
 
         //Camera
         let cmpCamera: fc.ComponentCamera = new fc.ComponentCamera();
@@ -45,8 +47,9 @@ namespace KreuzungsChaos {
     function hndLoop(_event: Event): void {
 
         trafficlight.hndControl();
-        if (trafficlight.stateUpdate != previousState) {
+        if (trafficlight.stateUpdate != currentState) {
             updateLights(trafficlight.stateUpdate);
+            currentState = trafficlight.stateUpdate;
         }
         viewport.draw();
 
@@ -54,24 +57,22 @@ namespace KreuzungsChaos {
 
     function createGameEnvironment(): fc.Node { //Creates background/"playingfield" of the game
 
-        
+
         let txtBackground: fc.TextureImage = new fc.TextureImage("../textures/base_lights.png");
         let mtrBackground: fc.Material = new fc.Material("Background", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtBackground));
 
         background.appendChild(new Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 0)));
         console.log(root);
-        
+
         return background;
 
     }
 
     function createLights(): fc.Node {
-        
+
         let lightstate: fc.Node = new fc.Node("Lightstate");
 
-        trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 1), 0);
-
-        console.log(trafficlight.state);
+        trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 1), previousState);
 
         trafficlight.appendChild(lightstate);
         background.appendChild(trafficlight);
@@ -87,30 +88,45 @@ namespace KreuzungsChaos {
 
         switch (_number) {
             case 0:
+                background.removeChild(trafficlight);
+
                 txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/all_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_All_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 1), 0);
-                console.log(trafficlight);
+                
+                background.addChild(trafficlight);
+                root.addChild(background);
+
                 break;
 
             case 1:
+                background.removeChild(trafficlight);
+
                 txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/bot_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Bot_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 1), 1);
-                console.log(trafficlight);
+
+                background.addChild(trafficlight);
+                root.addChild(background);
+                
                 break;
 
             case 2:
+                background.removeChild(trafficlight);
+
                 txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/side_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Side_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(0, 0, 1), 2);
-                console.log(trafficlight);
+
+                background.addChild(trafficlight);
+                root.addChild(background);
+
                 break;
 
             default:
-                break;  
+                break;
         }
-    }
 
+    }
 
 }
