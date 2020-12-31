@@ -22,11 +22,11 @@ namespace KreuzungsChaos {
                     this.state = STATE.ALL_RED;
                     this.stateUpdate = 0;
                     break;
-                case 1: 
+                case 1:
                     this.state = STATE.BOT_RED;
                     this.stateUpdate = 1;
                     break;
-                case 2: 
+                case 2:
                     this.state = STATE.SIDE_RED;
                     this.stateUpdate = 2;
                     break;
@@ -35,30 +35,33 @@ namespace KreuzungsChaos {
             }
 
             let cmpMaterial: fc.ComponentMaterial = new fc.ComponentMaterial(_material);
-            
-            
             this.addComponent(cmpMaterial);
 
         }
 
         public hndControl(): void {
 
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) 
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
 
+                switchCooldown = true;
                 this.switchState();
+                
 
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) 
+            }
 
+            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
+
+                switchCooldown = true;
                 this.emergency();
+
+            }
 
         }
 
         public switchState(): number { // Switch state from bot red to side red or the other way around
 
-            console.log("STATE SWITCHED");
-            console.log("OLD:" + this.state);
 
-            if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) { 
+            if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {
                 previousState = this.state.valueOf();
                 this.state = STATE.SIDE_RED;
                 this.stateUpdate = 2;
@@ -68,26 +71,26 @@ namespace KreuzungsChaos {
                 this.state = STATE.BOT_RED;
                 this.stateUpdate = 1;
             }
-            console.log("NEW:" + this.state);
+
+            fc.Time.game.setTimer(2000, 0, function changeBoolean(): void {
+                switchCooldown = false;
+            });
+
             return this.stateUpdate;
 
         }
 
         public emergency(): number { // Switch state to all red
 
-            console.log("STATE SWITCHED TO EMERGENCY");
-            console.log("OLD:" + currentState);
-
             previousState = this.state.valueOf();
             this.state = STATE.ALL_RED;
             this.stateUpdate = 0;
 
-            console.log("NEW:" + this.state);
-            
+
             return this.stateUpdate;
 
         }
-    
+
     }
 
 }

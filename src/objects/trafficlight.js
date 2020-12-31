@@ -31,14 +31,16 @@ var KreuzungsChaos;
             this.addComponent(cmpMaterial);
         }
         hndControl() {
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]))
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
+                KreuzungsChaos.switchCooldown = true;
                 this.switchState();
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]))
+            }
+            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
+                KreuzungsChaos.switchCooldown = true;
                 this.emergency();
+            }
         }
         switchState() {
-            console.log("STATE SWITCHED");
-            console.log("OLD:" + this.state);
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {
                 KreuzungsChaos.previousState = this.state.valueOf();
                 this.state = STATE.SIDE_RED;
@@ -49,16 +51,15 @@ var KreuzungsChaos;
                 this.state = STATE.BOT_RED;
                 this.stateUpdate = 1;
             }
-            console.log("NEW:" + this.state);
+            fc.Time.game.setTimer(2000, 0, function changeBoolean() {
+                KreuzungsChaos.switchCooldown = false;
+            });
             return this.stateUpdate;
         }
         emergency() {
-            console.log("STATE SWITCHED TO EMERGENCY");
-            console.log("OLD:" + KreuzungsChaos.currentState);
             KreuzungsChaos.previousState = this.state.valueOf();
             this.state = STATE.ALL_RED;
             this.stateUpdate = 0;
-            console.log("NEW:" + this.state);
             return this.stateUpdate;
         }
     }
