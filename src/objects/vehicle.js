@@ -74,6 +74,10 @@ var KreuzungsChaos;
                         this.path = PATH.RIGHTLEFT;
                         break;
                     }
+                    else if (this.endLocation == LOCATION.TOP) {
+                        this.path = PATH.RIGHTTOP;
+                        break;
+                    }
                     else {
                         console.log("ALERT - PATH NOT AVAILABLE YET");
                         this.mtxLocal.translation = new fc.Vector3(1000, 1000, 0);
@@ -94,6 +98,10 @@ var KreuzungsChaos;
                         this.path = PATH.LEFTRIGHT;
                         break;
                     }
+                    if (this.endLocation == LOCATION.TOP) {
+                        this.path = PATH.LEFTTOP;
+                        break;
+                    }
                     else {
                         console.log("ALERT - PATH NOT AVAILABLE YET");
                         this.mtxLocal.translation = new fc.Vector3(1000, 1000, 0);
@@ -109,14 +117,48 @@ var KreuzungsChaos;
                 case PATH.BOTTOP:
                     this.move(PATH.BOTTOP);
                     break;
-                case PATH.TOPBOT:
+                case PATH.BOTLEFT:
                     this.move(PATH.TOPBOT);
+                    this.turn(PATH.BOTLEFT);
+                    break;
+                case PATH.BOTRIGHT:
+                    this.move(PATH.RIGHTLEFT);
+                    this.turn(PATH.BOTRIGHT);
+                    break;
+                case PATH.RIGHTBOT:
+                    this.move(PATH.BOTTOP);
+                    this.turn(PATH.RIGHTTOP);
+                    break;
+                case PATH.RIGHTTOP:
+                    console.log("RIGHTTOP");
+                    this.move(PATH.TOPBOT);
+                    this.turn(PATH.RIGHTTOP);
                     break;
                 case PATH.RIGHTLEFT:
                     this.move(PATH.RIGHTLEFT);
                     break;
+                case PATH.TOPBOT:
+                    this.move(PATH.TOPBOT);
+                    break;
+                case PATH.TOPRIGHT:
+                    this.move(PATH.TOPBOT);
+                    this.turn(PATH.TOPRIGHT);
+                    break;
+                case PATH.TOPLEFT:
+                    this.move(PATH.RIGHTLEFT);
+                    this.turn(PATH.TOPLEFT);
+                    break;
+                case PATH.LEFTBOT:
+                    console.log("LEFTBOT");
+                    this.move(PATH.BOTTOP);
+                    this.turn(PATH.LEFTBOT);
+                    break;
                 case PATH.LEFTRIGHT:
                     this.move(PATH.LEFTRIGHT);
+                    break;
+                case PATH.LEFTTOP:
+                    this.move(PATH.RIGHTLEFT);
+                    this.turn(PATH.LEFTTOP);
                     break;
             }
         }
@@ -127,9 +169,11 @@ var KreuzungsChaos;
         }
         turn(_path) {
             if (_path == PATH.RIGHTTOP || _path == PATH.LEFTBOT) {
-                if (this.mtxLocal.translation == new fc.Vector3(15, 16.25, .1) || this.mtxLocal.translation == new fc.Vector3(15, 13.75, .1)) {
-                    for (let i = 0; i < 90; i++) {
-                        this.mtxLocal.rotateY(i);
+                if (Math.round(this.mtxLocal.translation.x) == 14 || Math.round(this.mtxLocal.translation.x) == 16) {
+                    console.log("ICH DREH GERADE");
+                    let initialRotation = this.mtxLocal.rotation.z;
+                    if (this.mtxLocal.rotation.z < initialRotation + 45) {
+                        this.mtxLocal.rotation.z = -90;
                     }
                 }
             }
