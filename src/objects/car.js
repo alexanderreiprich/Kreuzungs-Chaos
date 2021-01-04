@@ -4,8 +4,8 @@ var KreuzungsChaos;
     var fc = FudgeCore;
     let txtCar;
     class Car extends KreuzungsChaos.Vehicle {
-        constructor(_name, _position, _startlocation, _color) {
-            super(_name, new fc.Vector2(2, 3), _position, _startlocation);
+        constructor(_name, _position, _color) {
+            super(_name, new fc.Vector2(2, 3), _position);
             this.chooseColor(_color);
             let mtrCar = new fc.Material("Car", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtCar));
             let cmpMaterial = new fc.ComponentMaterial(mtrCar);

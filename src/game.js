@@ -28,7 +28,7 @@ var KreuzungsChaos;
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
         KreuzungsChaos.previousState = 1;
         KreuzungsChaos.currentState = 1;
-        KreuzungsChaos.difficulty = 750;
+        KreuzungsChaos.difficulty = 2000;
         carCounter = 0;
         //Camera
         let cmpCamera = new fc.ComponentCamera();
@@ -43,6 +43,7 @@ var KreuzungsChaos;
         createLights();
         createCar();
         hndTraffic(KreuzungsChaos.difficulty);
+        console.log(KreuzungsChaos.Vehicle.calculateRotation(new fc.Vector3(0, 0, 0), new fc.Vector3(0, 4, 0)));
         //Timers
         //Initialize Loop
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, hndLoop);
@@ -59,9 +60,8 @@ var KreuzungsChaos;
         }
         for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
             let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
-            currentVehicle.followPath(currentVehicle.endLocation);
+            currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
-            //console.log(currentVehicle.mtxLocal.translation);
         }
         KreuzungsChaos.viewport.draw();
     }
@@ -78,7 +78,7 @@ var KreuzungsChaos;
         /* let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
         let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
 
-        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(0, 13.75, .1))); */
+        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(16.25, 14, .1))); */
         return background;
     }
     function createLights() {
@@ -92,22 +92,7 @@ var KreuzungsChaos;
     }
     function createCar() {
         carCounter++;
-        let startlocation;
-        let decideRandomLocation = Math.random() * 10;
-        if (decideRandomLocation <= 2.5) {
-            startlocation = KreuzungsChaos.LOCATION.BOT;
-        }
-        else if (decideRandomLocation > 2.5 && decideRandomLocation < 5) {
-            startlocation = KreuzungsChaos.LOCATION.RIGHT;
-        }
-        else if (decideRandomLocation > 5 && decideRandomLocation < 7.5) {
-            startlocation = KreuzungsChaos.LOCATION.TOP;
-        }
-        else {
-            startlocation = KreuzungsChaos.LOCATION.LEFT;
-        }
-        let newCar = new KreuzungsChaos.Car("Car_" + carCounter, new fc.Vector3(50, 50, .1), startlocation, colorGenerator());
-        newCar.mtxLocal.translation = newCar.translateLocation(startlocation);
+        let newCar = new KreuzungsChaos.Car("Car_" + carCounter, new fc.Vector3(35, 35, .1), colorGenerator());
         KreuzungsChaos.vehicles.addChild(newCar);
         KreuzungsChaos.root.addChild(KreuzungsChaos.vehicles);
     }

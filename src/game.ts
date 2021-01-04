@@ -39,7 +39,7 @@ namespace KreuzungsChaos {
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
-        difficulty = 750;
+        difficulty = 2000;
         carCounter = 0;
 
         //Camera
@@ -57,7 +57,9 @@ namespace KreuzungsChaos {
         createLights();
         createCar();
         hndTraffic(difficulty);
-        
+
+        console.log(Vehicle.calculateRotation(new fc.Vector3(0, 0, 0), new fc.Vector3(0, 4, 0)));
+
         //Timers
 
         //Initialize Loop
@@ -73,19 +75,17 @@ namespace KreuzungsChaos {
         if (switchCooldown == false) {
             trafficlight.hndControl();
         }
-        
+
 
         if (trafficlight.stateUpdate != currentState) {
             updateLights(trafficlight.stateUpdate);
             currentState = trafficlight.stateUpdate;
         }
-        
+
         for (let i: number = 0; i < vehicles.getChildren().length; i++) {
-            let currentVehicle: Vehicle = <Vehicle> vehicles.getChild(i);
-            currentVehicle.followPath(currentVehicle.endLocation);
+            let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
+            currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
-            //console.log(currentVehicle.mtxLocal.translation);
-            
         }
 
         viewport.draw();
@@ -101,7 +101,7 @@ namespace KreuzungsChaos {
 
         let txtLights: fc.TextureImage = new fc.TextureImage("../textures/base_lights_only.png");
         let mtrLights: fc.Material = new fc.Material("Lights", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtLights));
-        
+
         background.appendChild(new Background(mtrLights, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 2)));
 
         let txtBorder: fc.TextureImage = new fc.TextureImage("../textures/border.png");
@@ -112,7 +112,7 @@ namespace KreuzungsChaos {
         /* let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
         let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
 
-        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(0, 13.75, .1))); */
+        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(16.25, 14, .1))); */
 
         return background;
 
@@ -138,29 +138,11 @@ namespace KreuzungsChaos {
 
         carCounter++;
 
-        let startlocation: LOCATION;
+        let newCar: Car = new Car("Car_" + carCounter, new fc.Vector3(35, 35, .1), colorGenerator());
 
-        let decideRandomLocation: number = Math.random() * 10;
-
-        if (decideRandomLocation <= 2.5) {
-            startlocation = LOCATION.BOT;
-        }
-        else if (decideRandomLocation > 2.5 && decideRandomLocation < 5) {
-            startlocation = LOCATION.RIGHT;
-        }
-        else if (decideRandomLocation > 5 && decideRandomLocation < 7.5) {
-            startlocation = LOCATION.TOP;
-        }
-        else {
-            startlocation = LOCATION.LEFT;
-        }
-
-        let newCar: Car = new Car("Car_" + carCounter, new fc.Vector3(50, 50, .1), startlocation, colorGenerator());
-        newCar.mtxLocal.translation = newCar.translateLocation(startlocation);
-        
         vehicles.addChild(newCar);
         root.addChild(vehicles);
-        
+
     }
 
     function hndTraffic(_difficulty: number): void {
@@ -182,7 +164,7 @@ namespace KreuzungsChaos {
                 txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/all_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_All_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 0);
-                
+
                 background.addChild(trafficlight);
                 root.addChild(background);
                 break;
@@ -196,7 +178,7 @@ namespace KreuzungsChaos {
 
                 background.addChild(trafficlight);
                 root.addChild(background);
-                
+
                 break;
 
             case 2:
@@ -213,7 +195,7 @@ namespace KreuzungsChaos {
 
             default:
                 break;
-                
+
         }
 
     }

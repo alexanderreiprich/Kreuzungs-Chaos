@@ -6,9 +6,9 @@ namespace KreuzungsChaos {
 
     export class Car extends Vehicle {
 
-        public constructor(_name: string, _position: fc.Vector3, _startlocation: LOCATION, _color: number) {
+        public constructor(_name: string, _position: fc.Vector3, _color: number) {
 
-            super(_name, new fc.Vector2(2, 3), _position, _startlocation);
+            super(_name, new fc.Vector2(2, 3), _position);
 
             this.chooseColor(_color);
 
