@@ -26,10 +26,15 @@ namespace KreuzungsChaos {
     export let switchCooldown: boolean = false;
     let carCounter: number;
 
-    let background: fc.Node = new fc.Node("Background");
+    export let background: fc.Node = new fc.Node("Background");
     let mtrCurrentLightstate: fc.Material;
     let trafficlight: Trafficlight;
 
+    let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
+    export let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
+
+    let txtHitbox: fc.TextureImage = new fc.TextureImage("../textures/hitbox.jpg");
+    export let mtrHitbox: fc.Material = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtHitbox));
 
     function hndLoad(_event: Event): void {
 
@@ -39,7 +44,7 @@ namespace KreuzungsChaos {
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
-        difficulty = 2000;
+        difficulty = 6000;
         carCounter = 0;
 
         //Camera
@@ -57,8 +62,6 @@ namespace KreuzungsChaos {
         createLights();
         createCar();
         hndTraffic(difficulty);
-
-        console.log(Vehicle.calculateRotation(new fc.Vector3(0, 0, 0), new fc.Vector3(0, 4, 0)));
 
         //Timers
 
@@ -86,7 +89,10 @@ namespace KreuzungsChaos {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
+            
         }
+
+        //hndCollision();
 
         viewport.draw();
 
@@ -109,10 +115,8 @@ namespace KreuzungsChaos {
 
         background.appendChild(new Background(mtrBorder, new fc.Vector2(25, 25), new fc.Vector3(15, 15, 10)));
 
-        /* let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
-        let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
-
-        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(16.25, 14, .1))); */
+       
+        
 
         return background;
 
@@ -134,7 +138,7 @@ namespace KreuzungsChaos {
 
     }
 
-    function createCar(): void {
+    function createCar(): void { // Creates a single car
 
         carCounter++;
 
@@ -143,16 +147,40 @@ namespace KreuzungsChaos {
         vehicles.addChild(newCar);
         root.addChild(vehicles);
 
+        console.log(newCar.hitbox.getChild(0).mtxLocal.translation);
+        console.log(newCar.hitbox.getChild(1).mtxLocal.translation);
+
     }
 
-    function hndTraffic(_difficulty: number): void {
+    function hndTraffic(_difficulty: number): void { // Loop that creates a car after a random amount of time
 
-        let randomFactor: number = (Math.random() - 0.5) * 100;
+        let randomFactor: number = (Math.random() - 0.75) * 100;
 
         _difficulty = _difficulty + randomFactor;
 
         fc.Time.game.setTimer(_difficulty, 0, createCar);
 
+    }
+
+    function hndCollision(): void {
+
+        for (let car of vehicles.getChildren()) {
+
+            for (let i: number = 0; i < vehicles.getChildren().length; i++) {
+
+                let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
+                if (currentVehicle.checkCollision(<GameObject>car) && currentVehicle != <GameObject>car) {
+
+                    console.log("collision: " + currentVehicle.name + " with " + car.name);
+                    console.log("currentvehicle pos" + currentVehicle.mtxLocal.translation + " car pos " + currentVehicle.rect.position);
+                    fc.Loop.stop();
+
+                }
+
+            }
+
+        }
+            
     }
 
     function updateLights(_number: number): void { // Updates lights after input
@@ -200,7 +228,7 @@ namespace KreuzungsChaos {
 
     }
 
-    function colorGenerator(): number {
+    function colorGenerator(): number { // Chooses a random color for the car
 
         let colorInt: number = Math.random();
 

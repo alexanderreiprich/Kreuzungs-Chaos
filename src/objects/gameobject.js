@@ -6,7 +6,7 @@ var KreuzungsChaos;
         class GameObject extends fc.Node {
             constructor(_name, _size, _position) {
                 super(_name);
-                this.rect = new fc.Rectangle(_position.x, _position.y, _size.x, _size.y, fc.ORIGIN2D.CENTER);
+                //this.rect = new fc.Rectangle(_position.x, _position.y, _size.x, _size.y, fc.ORIGIN2D.CENTER);
                 this.addComponent(new fc.ComponentTransform(fc.Matrix4x4.TRANSLATION(_position)));
                 let cmpQuad = new fc.ComponentMesh(GameObject.meshQuad);
                 this.addComponent(cmpQuad);

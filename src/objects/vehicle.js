@@ -34,6 +34,8 @@ var KreuzungsChaos;
     class Vehicle extends KreuzungsChaos.GameObject {
         constructor(_name, _size, _position) {
             super(_name, _size, _position);
+            this.hitbox = new fc.Node("Hitbox");
+            this.turned = false;
             this.velocity = 0;
             this.speedlimit = 50;
             this.acceleration = .5;
@@ -49,6 +51,10 @@ var KreuzungsChaos;
             console.log("[Car " + this.name + "] Going " + this.startLocation.id + " -> " + this.endLocation.id);
             this.currentStatus = STATUS.STOP;
             this.getNextTarget();
+            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontRect.x, this.frontRect.y, .25)));
+            this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backRect.x, this.backRect.y, .25)));
+            KreuzungsChaos.root.appendChild(this.hitbox);
         }
         static calculateRotation(_currentPos, _targetPos) {
             let directionalVector = fc.Vector3.DIFFERENCE(_targetPos, _currentPos).toVector2();
@@ -73,6 +79,30 @@ var KreuzungsChaos;
             vectorlist.push(_startlocation.endInt);
             return vectorlist;
         }
+        initCollision(_direction) {
+            console.log(_direction);
+            switch (_direction) {
+                case 90:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 0.25, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1.75, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    break;
+                case -90:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1.75, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 0.25, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    break;
+                case -180:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 0.25, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 1.75, 2, 2, fc.ORIGIN2D.CENTER);
+                    break;
+                case -0:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 1.75, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 0.25, 2, 2, fc.ORIGIN2D.CENTER);
+                    break;
+                default:
+                    console.log("ALERT - NO COLLISION INITIALIZED");
+                    break;
+            }
+        }
         getLocations(_streetlist) {
             let rngStartlocation = Math.floor(Math.random() * _streetlist.length);
             let rngEndlocation;
@@ -84,7 +114,7 @@ var KreuzungsChaos;
         }
         getNextTarget() {
             if (this.routeTargets.length == 0) {
-                console.log("TARGET REACHED POG");
+                console.log("TARGET REACHED");
                 this.currentStatus = STATUS.ARRIVED;
                 this.getParent().removeChild(this);
             }
@@ -117,6 +147,13 @@ var KreuzungsChaos;
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
+            this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
+        }
+        rotateVector(_vector, _rotation) {
+            _vector.transform(fc.Matrix4x4.ROTATION_Z(_rotation));
+            return _vector;
         }
         checkOutOfBounds() {
             if (this.mtxLocal.translation.x < -10 || this.mtxLocal.translation.x > 40 || this.mtxLocal.translation.y < -10 || this.mtxLocal.translation.y > 40) {
@@ -131,6 +168,20 @@ var KreuzungsChaos;
         calculateVelocity() {
             if (this.velocity < this.speedlimit) {
                 this.velocity += this.acceleration;
+            }
+        }
+        checkCollision(_target) {
+            let intersection = this.rect.getIntersection(_target.rect);
+            if (intersection == null)
+                return false;
+            else {
+                if (this != _target) {
+                    console.log("COLLISION!!");
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
         }
     }

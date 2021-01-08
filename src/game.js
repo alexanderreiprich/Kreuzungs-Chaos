@@ -18,9 +18,13 @@ var KreuzungsChaos;
     //NOT CHANGEABLE
     KreuzungsChaos.switchCooldown = false;
     let carCounter;
-    let background = new fc.Node("Background");
+    KreuzungsChaos.background = new fc.Node("Background");
     let mtrCurrentLightstate;
     let trafficlight;
+    let txtCross = new fc.TextureImage("../textures/cross.png");
+    KreuzungsChaos.mtrCross = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtCross));
+    let txtHitbox = new fc.TextureImage("../textures/hitbox.jpg");
+    KreuzungsChaos.mtrHitbox = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtHitbox));
     function hndLoad(_event) {
         //Variables and Constants
         const canvas = document.querySelector("canvas");
@@ -28,7 +32,7 @@ var KreuzungsChaos;
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
         KreuzungsChaos.previousState = 1;
         KreuzungsChaos.currentState = 1;
-        KreuzungsChaos.difficulty = 2000;
+        KreuzungsChaos.difficulty = 6000;
         carCounter = 0;
         //Camera
         let cmpCamera = new fc.ComponentCamera();
@@ -43,7 +47,6 @@ var KreuzungsChaos;
         createLights();
         createCar();
         hndTraffic(KreuzungsChaos.difficulty);
-        console.log(KreuzungsChaos.Vehicle.calculateRotation(new fc.Vector3(0, 0, 0), new fc.Vector3(0, 4, 0)));
         //Timers
         //Initialize Loop
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, hndLoop);
@@ -63,30 +66,27 @@ var KreuzungsChaos;
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
         }
+        //hndCollision();
         KreuzungsChaos.viewport.draw();
     }
     function createGameEnvironment() {
         let txtBackground = new fc.TextureImage("../textures/base_clean.png");
         let mtrBackground = new fc.Material("Background", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtBackground));
-        background.appendChild(new KreuzungsChaos.Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 0)));
+        KreuzungsChaos.background.appendChild(new KreuzungsChaos.Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 0)));
         let txtLights = new fc.TextureImage("../textures/base_lights_only.png");
         let mtrLights = new fc.Material("Lights", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtLights));
-        background.appendChild(new KreuzungsChaos.Background(mtrLights, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 2)));
+        KreuzungsChaos.background.appendChild(new KreuzungsChaos.Background(mtrLights, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 2)));
         let txtBorder = new fc.TextureImage("../textures/border.png");
         let mtrBorder = new fc.Material("Border", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtBorder));
-        background.appendChild(new KreuzungsChaos.Background(mtrBorder, new fc.Vector2(25, 25), new fc.Vector3(15, 15, 10)));
-        /* let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
-        let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
-
-        background.appendChild(new Background(mtrCross, new fc.Vector2(1, 1), new fc.Vector3(16.25, 14, .1))); */
-        return background;
+        KreuzungsChaos.background.appendChild(new KreuzungsChaos.Background(mtrBorder, new fc.Vector2(25, 25), new fc.Vector3(15, 15, 10)));
+        return KreuzungsChaos.background;
     }
     function createLights() {
         let lightstate = new fc.Node("Lightstate");
         trafficlight = new KreuzungsChaos.Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), KreuzungsChaos.previousState);
         trafficlight.appendChild(lightstate);
-        background.appendChild(trafficlight);
-        KreuzungsChaos.root.appendChild(background);
+        KreuzungsChaos.background.appendChild(trafficlight);
+        KreuzungsChaos.root.appendChild(KreuzungsChaos.background);
         KreuzungsChaos.previousState = trafficlight.state.valueOf();
         return trafficlight;
     }
@@ -95,37 +95,51 @@ var KreuzungsChaos;
         let newCar = new KreuzungsChaos.Car("Car_" + carCounter, new fc.Vector3(35, 35, .1), colorGenerator());
         KreuzungsChaos.vehicles.addChild(newCar);
         KreuzungsChaos.root.addChild(KreuzungsChaos.vehicles);
+        console.log(newCar.hitbox.getChild(0).mtxLocal.translation);
+        console.log(newCar.hitbox.getChild(1).mtxLocal.translation);
     }
     function hndTraffic(_difficulty) {
-        let randomFactor = (Math.random() - 0.5) * 100;
+        let randomFactor = (Math.random() - 0.75) * 100;
         _difficulty = _difficulty + randomFactor;
         fc.Time.game.setTimer(_difficulty, 0, createCar);
+    }
+    function hndCollision() {
+        for (let car of KreuzungsChaos.vehicles.getChildren()) {
+            for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
+                let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
+                if (currentVehicle.checkCollision(car) && currentVehicle != car) {
+                    console.log("collision: " + currentVehicle.name + " with " + car.name);
+                    console.log("currentvehicle pos" + currentVehicle.mtxLocal.translation + " car pos " + currentVehicle.rect.position);
+                    fc.Loop.stop();
+                }
+            }
+        }
     }
     function updateLights(_number) {
         switch (_number) {
             case 0:
-                background.removeChild(trafficlight);
+                KreuzungsChaos.background.removeChild(trafficlight);
                 KreuzungsChaos.txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/all_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_All_Red", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
                 trafficlight = new KreuzungsChaos.Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 0);
-                background.addChild(trafficlight);
-                KreuzungsChaos.root.addChild(background);
+                KreuzungsChaos.background.addChild(trafficlight);
+                KreuzungsChaos.root.addChild(KreuzungsChaos.background);
                 break;
             case 1:
-                background.removeChild(trafficlight);
+                KreuzungsChaos.background.removeChild(trafficlight);
                 KreuzungsChaos.txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/bot_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Bot_Red", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
                 trafficlight = new KreuzungsChaos.Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 1);
-                background.addChild(trafficlight);
-                KreuzungsChaos.root.addChild(background);
+                KreuzungsChaos.background.addChild(trafficlight);
+                KreuzungsChaos.root.addChild(KreuzungsChaos.background);
                 break;
             case 2:
-                background.removeChild(trafficlight);
+                KreuzungsChaos.background.removeChild(trafficlight);
                 KreuzungsChaos.txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/side_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Side_Red", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
                 trafficlight = new KreuzungsChaos.Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 2);
-                background.addChild(trafficlight);
-                KreuzungsChaos.root.addChild(background);
+                KreuzungsChaos.background.addChild(trafficlight);
+                KreuzungsChaos.root.addChild(KreuzungsChaos.background);
                 break;
             default:
                 break;

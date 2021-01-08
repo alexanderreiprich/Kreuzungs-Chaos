@@ -30,6 +30,10 @@ namespace KreuzungsChaos {
         public currentStatus: STATUS;
         public currentTarget: fc.Vector3;
         public routeTargets: fc.Vector3[];
+        public hitbox: fc.Node = new fc.Node("Hitbox");
+        public frontRect: fc.Rectangle;
+        public backRect: fc.Rectangle;
+        public turned: boolean = false;
 
         public velocity: number = 0;
         public speedlimit: number = 50;
@@ -57,9 +61,16 @@ namespace KreuzungsChaos {
 
             this.getNextTarget();
 
+            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            
+
+            this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontRect.x, this.frontRect.y, .25)));
+            this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backRect.x, this.backRect.y, .25)));
+
+            root.appendChild(this.hitbox);
         }
 
-        public static calculateRotation(_currentPos: fc.Vector3, _targetPos: fc.Vector3): number {
+        public static calculateRotation(_currentPos: fc.Vector3, _targetPos: fc.Vector3): number { // Calculates Rotation towards next target
 
             let directionalVector: fc.Vector2 = fc.Vector3.DIFFERENCE(_targetPos, _currentPos).toVector2();
 
@@ -71,7 +82,7 @@ namespace KreuzungsChaos {
 
         }
 
-        public static calculateMove(_currentPos: fc.Vector3, _targetPos: fc.Vector3, _velocity: number): number {
+        public static calculateMove(_currentPos: fc.Vector3, _targetPos: fc.Vector3, _velocity: number): number { // Calculates movelength
 
             let directionalVector: fc.Vector2 = fc.Vector3.DIFFERENCE(_targetPos, _currentPos).toVector2();
             let directionalVectorLength: number = directionalVector.magnitude;
@@ -99,9 +110,39 @@ namespace KreuzungsChaos {
 
             return vectorlist;
 
-        } 
+        }
 
-        public getLocations(_streetlist: Street[]): void {
+        public initCollision(_direction: number): void {
+
+            console.log(_direction);
+
+            switch (_direction) {
+
+                case 90:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 0.25, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1.75, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    break;
+                case -90: 
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1.75, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 0.25, this.mtxLocal.translation.y + 1, 2, 2, fc.ORIGIN2D.CENTER);                
+                    break;
+                case -180:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 0.25, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 1.75, 2, 2, fc.ORIGIN2D.CENTER); 
+                    break;
+                case -0:
+                    this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 1.75, 2, 2, fc.ORIGIN2D.CENTER);
+                    this.backRect = new fc.Rectangle(this.mtxLocal.translation.x + 1, this.mtxLocal.translation.y + 0.25, 2, 2, fc.ORIGIN2D.CENTER); 
+                    break;
+                default: 
+                    console.log("ALERT - NO COLLISION INITIALIZED");
+                    break;
+
+            }
+
+        }
+
+        public getLocations(_streetlist: Street[]): void { // Randomly chooses start and end location
 
             let rngStartlocation: number = Math.floor(Math.random() * _streetlist.length);
             let rngEndlocation: number;
@@ -115,11 +156,11 @@ namespace KreuzungsChaos {
 
         }
 
-        public getNextTarget(): void {
+        public getNextTarget(): void { // Changes Target after initialization/reached destination
 
             if (this.routeTargets.length == 0) {
 
-                console.log("TARGET REACHED POG");
+                console.log("TARGET REACHED");
 
                 this.currentStatus = STATUS.ARRIVED;
                 this.getParent().removeChild(this);
@@ -147,7 +188,7 @@ namespace KreuzungsChaos {
 
         }
 
-        public onTargetReached(): void {
+        public onTargetReached(): void { // Listener -> New target
 
             this.getNextTarget();
 
@@ -158,6 +199,7 @@ namespace KreuzungsChaos {
             if (this.currentStatus != STATUS.STOP && this.currentStatus != STATUS.ARRIVED) {
 
                 this.move();
+                
 
                 if (this.mtxLocal.translation.equals(this.currentTarget)) {
 
@@ -169,17 +211,29 @@ namespace KreuzungsChaos {
 
         }
 
-        public move(): void {
+        public move(): void { // Main function that moves the vehicle
 
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
 
-            this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+            this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity)); 
+
+            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+
+            this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
+            this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
 
         }
 
-        public checkOutOfBounds(): boolean {
+        public rotateVector(_vector: fc.Vector3, _rotation: number): fc.Vector3 {
+
+            _vector.transform(fc.Matrix4x4.ROTATION_Z(_rotation));
+            return _vector;
+
+        }
+
+        public checkOutOfBounds(): boolean { // Checks location and removes once out of canvas
 
             if (this.mtxLocal.translation.x < -10 || this.mtxLocal.translation.x > 40 || this.mtxLocal.translation.y < -10 || this.mtxLocal.translation.y > 40) {
 
@@ -203,6 +257,26 @@ namespace KreuzungsChaos {
                 this.velocity += this.acceleration;
 
             }
+
+        }
+
+        public checkCollision(_target: GameObject): boolean {
+
+            let intersection: fc.Rectangle = this.rect.getIntersection(_target.rect);
+            if (intersection == null)
+                return false;
+
+            else {
+                if (this != _target) {
+                    console.log("COLLISION!!");
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+
+
 
         }
 
