@@ -51,7 +51,7 @@ var KreuzungsChaos;
             console.log("[Car " + this.name + "] Going " + this.startLocation.id + " -> " + this.endLocation.id);
             this.currentStatus = STATUS.STOP;
             this.getNextTarget();
-            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            this.initCorrectCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontRect.x, this.frontRect.y, .25)));
             this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backRect.x, this.backRect.y, .25)));
             KreuzungsChaos.root.appendChild(this.hitbox);
@@ -103,6 +103,18 @@ var KreuzungsChaos;
                     break;
             }
         }
+        initCorrectCollision(_direction) {
+            let frontVector = new fc.Vector3(1, 1.75, 0);
+            let backVector = new fc.Vector3(1, 0.25, 0);
+            frontVector = this.rotateVector(frontVector, _direction);
+            backVector = this.rotateVector(backVector, _direction);
+            frontVector.add(this.mtxLocal.translation);
+            backVector.add(this.mtxLocal.translation);
+            this.frontRect = new fc.Rectangle(this.mtxLocal.translation.x, this.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
+            this.backRect = new fc.Rectangle(this.currentTarget.x, this.currentTarget.y, 2, 2, fc.ORIGIN2D.CENTER);
+            //this.frontRect = new fc.Rectangle(frontVector.x, frontVector.y, 2, 2, fc.ORIGIN2D.CENTER);
+            // this.backRect = new fc.Rectangle(backVector.x, backVector.y, 2, 2, fc.ORIGIN2D.CENTER);
+        }
         getLocations(_streetlist) {
             let rngStartlocation = Math.floor(Math.random() * _streetlist.length);
             let rngEndlocation;
@@ -147,7 +159,7 @@ var KreuzungsChaos;
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
-            this.initCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            this.initCorrectCollision(Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
             this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
         }
