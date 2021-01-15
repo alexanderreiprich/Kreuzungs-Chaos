@@ -16,8 +16,6 @@ namespace KreuzungsChaos {
             let cmpMaterial: fc.ComponentMaterial = new fc.ComponentMaterial(mtrCar);
             this.addComponent(cmpMaterial);
 
-
-
         }
 
         private chooseColor(_color: number): void {

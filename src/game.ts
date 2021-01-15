@@ -28,7 +28,7 @@ namespace KreuzungsChaos {
 
     export let background: fc.Node = new fc.Node("Background");
     let mtrCurrentLightstate: fc.Material;
-    let trafficlight: Trafficlight;
+    export let trafficlight: Trafficlight;
 
     let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
     export let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
@@ -44,7 +44,7 @@ namespace KreuzungsChaos {
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
-        difficulty = 6000;
+        difficulty = 2000;
         carCounter = 0;
 
         //Camera
@@ -92,7 +92,7 @@ namespace KreuzungsChaos {
             
         }
 
-        //hndCollision();
+        hndCollision();
 
         viewport.draw();
 
@@ -147,8 +147,8 @@ namespace KreuzungsChaos {
         vehicles.addChild(newCar);
         root.addChild(vehicles);
 
-        console.log(newCar.hitbox.getChild(0).mtxLocal.translation);
-        console.log(newCar.hitbox.getChild(1).mtxLocal.translation);
+        console.log("FRONT RECTANGLE POS: " + newCar.hitbox.getChild(0).mtxLocal.translation);
+        console.log("BACK RECTANGLE POS: " + newCar.hitbox.getChild(1).mtxLocal.translation);
 
     }
 
@@ -169,10 +169,11 @@ namespace KreuzungsChaos {
             for (let i: number = 0; i < vehicles.getChildren().length; i++) {
 
                 let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
-                if (currentVehicle.checkCollision(<GameObject>car) && currentVehicle != <GameObject>car) {
+                if (currentVehicle.checkCollision(<Vehicle>car) && currentVehicle != <Vehicle>car) {
 
                     console.log("collision: " + currentVehicle.name + " with " + car.name);
-                    console.log("currentvehicle pos" + currentVehicle.mtxLocal.translation + " car pos " + currentVehicle.rect.position);
+                    console.log("car 1 " + currentVehicle.mtxWorld.translation + " car 2 " + car.mtxWorld.translation);
+                    console.log("pos 1 " + currentVehicle.frontHitNode.mtxWorld.translation + " pos 2 " + car.mtxWorld.translation);
                     fc.Loop.stop();
 
                 }
@@ -247,6 +248,13 @@ namespace KreuzungsChaos {
         else {
             return 4;
         }
+
+    }
+
+    function toggleEvent(): Events {
+
+        let event: Events = new Events();
+        return event;
 
     }
 
