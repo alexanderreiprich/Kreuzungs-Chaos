@@ -65,9 +65,9 @@ var KreuzungsChaos;
             this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
-            this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
-            this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
-            KreuzungsChaos.root.appendChild(this.hitbox);
+            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
+            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
+            // root.appendChild(this.hitbox);
         }
         static calculateRotation(_currentPos, _targetPos) {
             let directionalVector = fc.Vector3.DIFFERENCE(_targetPos, _currentPos).toVector2();
@@ -142,8 +142,30 @@ var KreuzungsChaos;
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
-            this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
-            this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
+            // this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
+            // this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
+        }
+        moveAside() {
+            if (this.velocity > 0) {
+                this.velocity -= this.acceleration;
+                this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+                this.mtxLocal.translateX(0.1);
+                this.moveAside();
+            }
+            else if (this.velocity == 0 && this.currentStatus != STATUS.STOP) {
+                this.currentStatus = STATUS.STOP;
+            }
+        }
+        moveBack() {
+            if (this.currentStatus != STATUS.DRIVING) {
+                this.currentStatus = STATUS.DRIVING;
+            }
+            if (this.velocity <= this.speedlimit) {
+                this.velocity += this.acceleration;
+                this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+                this.mtxLocal.translateX(-0.1);
+                this.moveBack();
+            }
         }
         stop() {
             if (this.routeTargets.length == 2) {
@@ -154,6 +176,11 @@ var KreuzungsChaos;
                 this.currentStatus = STATUS.DRIVING;
                 this.move();
             }
+        }
+        hndEvent() {
+            this.moveAside();
+            //if event over
+            this.moveBack();
         }
         rotateVector(_vector, _rotation) {
             _vector.transform(fc.Matrix4x4.ROTATION_Z(_rotation));
@@ -190,8 +217,17 @@ var KreuzungsChaos;
             }
         }
         checkInFront() {
-            let frontRay = new fc.Ray(this.mtxLocal.getY(), this.mtxWorld.translation, 5);
-            frontRay.getDistance();
+            for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
+                let vectorBetween = new fc.Vector3;
+                vectorBetween = KreuzungsChaos.vehicles.getChild(i).mtxLocal.translation;
+                vectorBetween.subtract(this.mtxLocal.translation);
+                if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                    if (vectorBetween.y < 10 && vectorBetween.y > 0) {
+                        console.log(this.name + "SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+                    }
+                }
+            }
         }
     }
     KreuzungsChaos.Vehicle = Vehicle;

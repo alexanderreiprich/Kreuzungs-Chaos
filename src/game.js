@@ -59,11 +59,13 @@ var KreuzungsChaos;
         if (KreuzungsChaos.trafficlight.stateUpdate != KreuzungsChaos.currentState) {
             updateLights(KreuzungsChaos.trafficlight.stateUpdate);
             KreuzungsChaos.currentState = KreuzungsChaos.trafficlight.stateUpdate;
+            console.log(KreuzungsChaos.root);
         }
         for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
             let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
+            currentVehicle.checkInFront();
         }
         hndCollision();
         KreuzungsChaos.viewport.draw();
@@ -94,8 +96,6 @@ var KreuzungsChaos;
         let newCar = new KreuzungsChaos.Car("Car_" + carCounter, new fc.Vector3(35, 35, .1), colorGenerator());
         KreuzungsChaos.vehicles.addChild(newCar);
         KreuzungsChaos.root.addChild(KreuzungsChaos.vehicles);
-        console.log("FRONT RECTANGLE POS: " + newCar.hitbox.getChild(0).mtxLocal.translation);
-        console.log("BACK RECTANGLE POS: " + newCar.hitbox.getChild(1).mtxLocal.translation);
     }
     function hndTraffic(_difficulty) {
         let randomFactor = (Math.random() - 0.75) * 100;
@@ -163,9 +163,9 @@ var KreuzungsChaos;
             return 4;
         }
     }
-    function toggleEvent() {
-        let event = new KreuzungsChaos.Events();
-        return event;
-    }
+    // function toggleEvent(): Events {
+    //     let event: Events = new Events();
+    //     return event;
+    // }
 })(KreuzungsChaos || (KreuzungsChaos = {}));
 //# sourceMappingURL=game.js.map

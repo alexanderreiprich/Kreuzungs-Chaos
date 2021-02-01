@@ -83,12 +83,14 @@ namespace KreuzungsChaos {
         if (trafficlight.stateUpdate != currentState) {
             updateLights(trafficlight.stateUpdate);
             currentState = trafficlight.stateUpdate;
+            console.log(root);
         }
 
         for (let i: number = 0; i < vehicles.getChildren().length; i++) {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
+            currentVehicle.checkInFront();
             
         }
 
@@ -146,9 +148,6 @@ namespace KreuzungsChaos {
 
         vehicles.addChild(newCar);
         root.addChild(vehicles);
-
-        console.log("FRONT RECTANGLE POS: " + newCar.hitbox.getChild(0).mtxLocal.translation);
-        console.log("BACK RECTANGLE POS: " + newCar.hitbox.getChild(1).mtxLocal.translation);
 
     }
 
@@ -251,11 +250,11 @@ namespace KreuzungsChaos {
 
     }
 
-    function toggleEvent(): Events {
+    // function toggleEvent(): Events {
 
-        let event: Events = new Events();
-        return event;
+    //     let event: Events = new Events();
+    //     return event;
 
-    }
+    // }
 
 }

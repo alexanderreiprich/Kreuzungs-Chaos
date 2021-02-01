@@ -1,11 +1,19 @@
 "use strict";
 var KreuzungsChaos;
 (function (KreuzungsChaos) {
+    var fc = FudgeCore;
     let EVENT;
     (function (EVENT) {
         EVENT[EVENT["POLICE"] = 0] = "POLICE";
         EVENT[EVENT["RACE"] = 1] = "RACE";
     })(EVENT = KreuzungsChaos.EVENT || (KreuzungsChaos.EVENT = {}));
+    let STATUS;
+    (function (STATUS) {
+        STATUS[STATUS["STARTING"] = 0] = "STARTING";
+        STATUS[STATUS["ACTIVE"] = 1] = "ACTIVE";
+        STATUS[STATUS["ENDED"] = 2] = "ENDED";
+    })(STATUS || (STATUS = {}));
+    let currentStatus;
     class Events {
         constructor() {
             Events.launchEvent(Events.decideEvent());
@@ -30,17 +38,28 @@ var KreuzungsChaos;
             switch (_event) {
                 case EVENT.POLICE:
                     console.log("- - - EVENT: POLICE - - -");
+                    currentStatus = STATUS.STARTING;
                     this.execPoliceEvent();
                 case EVENT.RACE:
                     console.log("- - - EVENT: RACE - - -");
+                    currentStatus = STATUS.STARTING;
                     this.execRaceEvent();
                 default:
                     console.log("UNDEFINED EVENT");
             }
         }
         static execPoliceEvent() {
+            let policeCar = new KreuzungsChaos.Police("Police", new fc.Vector3(40, 40, 0.1));
         }
         static execRaceEvent() {
+        }
+        static eventOver() {
+            if (currentStatus == STATUS.ENDED) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
     }
     KreuzungsChaos.Events = Events;

@@ -82,10 +82,10 @@ namespace KreuzungsChaos {
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
 
-            this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
-            this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
+            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
+            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
 
-            root.appendChild(this.hitbox);
+            // root.appendChild(this.hitbox);
         }
 
         public static calculateRotation(_currentPos: fc.Vector3, _targetPos: fc.Vector3): number { // Calculates Rotation towards next target
@@ -208,15 +208,46 @@ namespace KreuzungsChaos {
 
         public move(): void { // Main function that moves the vehicle
 
-
-
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
 
-            this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
-            this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
+            // this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
+            // this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
+
+        }
+
+        public moveAside(): void { // When fully moved aside, return true to signal stop until even is over
+
+            if (this.velocity > 0) {
+
+                this.velocity -= this.acceleration;
+                this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+                this.mtxLocal.translateX(0.1);
+                this.moveAside();
+
+            }
+            else if (this.velocity == 0 && this.currentStatus != STATUS.STOP) {
+                this.currentStatus = STATUS.STOP;
+            }
+        }
+        public moveBack(): void { // When fully moved back on street, return true to signal normal behavior from now on
+
+            if (this.currentStatus != STATUS.DRIVING) {
+
+                this.currentStatus = STATUS.DRIVING;
+
+            }
+
+            if (this.velocity <= this.speedlimit) {
+
+                this.velocity += this.acceleration;
+                this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
+                this.mtxLocal.translateX(-0.1);
+                this.moveBack();
+
+            }
 
         }
 
@@ -230,6 +261,14 @@ namespace KreuzungsChaos {
                 this.currentStatus = STATUS.DRIVING;
                 this.move();
             }
+
+        }
+
+        public hndEvent(): void {
+
+            this.moveAside();
+            //if event over
+            this.moveBack();
 
         }
 
@@ -247,7 +286,7 @@ namespace KreuzungsChaos {
                 this.getParent().removeChild(this);
                 console.log("REMOVED");
                 return true;
-
+                
             }
             else {
 
@@ -286,11 +325,22 @@ namespace KreuzungsChaos {
 
         } 
 
-        public checkInFront(): boolean {
+        public checkInFront(): void {
 
-            let frontRay: fc.Ray = new fc.Ray(this.mtxLocal.getY(), this.mtxWorld.translation, 5);
+            for (let i: number = 0; i < vehicles.getChildren().length; i++) {
+                
+                let vectorBetween: fc.Vector3 = new fc.Vector3;
+                vectorBetween = vehicles.getChild(i).mtxLocal.translation;
+                vectorBetween.subtract(this.mtxLocal.translation);
 
-            frontRay.getDistance()
+                if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
+                    if (vectorBetween.y < 10 && vectorBetween.y > 0) {
+                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+                    }
+                }
+
+            }
 
         }
 

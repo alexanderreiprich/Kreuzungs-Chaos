@@ -8,7 +8,14 @@ namespace KreuzungsChaos {
 
     }
 
+    enum STATUS {
+
+        STARTING, ACTIVE, ENDED
+
+    }
+
     export let currentEventType: EVENT;
+    let currentStatus: STATUS;
 
     export class Events {
 
@@ -44,10 +51,12 @@ namespace KreuzungsChaos {
 
                 case EVENT.POLICE:
                     console.log("- - - EVENT: POLICE - - -");
+                    currentStatus = STATUS.STARTING;
                     this.execPoliceEvent();
 
                 case EVENT.RACE:
                     console.log("- - - EVENT: RACE - - -");
+                    currentStatus = STATUS.STARTING;
                     this.execRaceEvent();
 
                 default:
@@ -59,6 +68,7 @@ namespace KreuzungsChaos {
 
         public static execPoliceEvent(): void {
 
+            let policeCar: Police = new Police("Police", new fc.Vector3(40, 40, 0.1));
             
 
         }
@@ -66,6 +76,17 @@ namespace KreuzungsChaos {
         public static execRaceEvent(): void {
 
             
+
+        }
+
+        public static eventOver(): boolean {
+
+            if (currentStatus == STATUS.ENDED) {
+                return true;
+            }
+            else {
+                return false;
+            }
 
         }
 
