@@ -3,7 +3,7 @@ Endabgabe PRIMA2021
 
 < Link to the Game (WIP!) >
 
-https://alexanderreiprich.github.io
+https://alexanderreiprich.github.io/Kreuzungs-Chaos/
 
  < Image and Sprite Sources >
 
