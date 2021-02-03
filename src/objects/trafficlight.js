@@ -41,6 +41,7 @@ var KreuzungsChaos;
             }
         }
         switchState() {
+            console.log("SWITCH STATE, COCAINE");
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {
                 KreuzungsChaos.previousState = this.state.valueOf();
                 this.state = STATE.SIDE_RED;
@@ -60,6 +61,7 @@ var KreuzungsChaos;
             KreuzungsChaos.previousState = this.state.valueOf();
             this.state = STATE.ALL_RED;
             this.stateUpdate = 0;
+            fc.Time.game.setTimer(3000, 1, this.switchState);
             return this.stateUpdate;
         }
     }

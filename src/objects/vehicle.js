@@ -35,7 +35,6 @@ var KreuzungsChaos;
         constructor(_name, _size, _position) {
             super(_name, _size, _position);
             this.hitbox = new fc.Node("Hitbox");
-            this.turned = false;
             this.frontHitNode = new fc.Node("FrontHitNode");
             this.backHitNode = new fc.Node("FrontBackNode");
             this.velocity = 0;
@@ -63,11 +62,11 @@ var KreuzungsChaos;
             this.appendChild(this.backHitNode);
             this.frontRect = new fc.Rectangle(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
             this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
-            this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
-            this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
+            this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
+            this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
-            // root.appendChild(this.hitbox);
+            this.appendChild(this.hitbox);
         }
         static calculateRotation(_currentPos, _targetPos) {
             let directionalVector = fc.Vector3.DIFFERENCE(_targetPos, _currentPos).toVector2();
@@ -126,6 +125,7 @@ var KreuzungsChaos;
             this.getNextTarget();
         }
         followPath() {
+            this.mtxWorld.translation = this.mtxLocal.translation;
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
             if (KreuzungsChaos.trafficlight.state == KreuzungsChaos.STATE.SIDE_RED || KreuzungsChaos.trafficlight.state == KreuzungsChaos.STATE.ALL_RED) {
@@ -219,11 +219,17 @@ var KreuzungsChaos;
         checkInFront() {
             for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
                 let vectorBetween = new fc.Vector3;
-                vectorBetween = KreuzungsChaos.vehicles.getChild(i).mtxLocal.translation;
-                vectorBetween.subtract(this.mtxLocal.translation);
+                vectorBetween = KreuzungsChaos.vehicles.getChild(i).mtxWorld.translation;
+                vectorBetween.subtract(this.mtxWorld.translation);
                 if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                    if (vectorBetween.y < 10 && vectorBetween.y > 0) {
-                        console.log(this.name + "SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
+                    if (vectorBetween.magnitude < 10) {
+                        console.log(this.name + " SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+                    }
+                }
+                if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                    if (vectorBetween.magnitude < 10) {
+                        console.log(this.name + " SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
                         console.log(vectorBetween);
                     }
                 }

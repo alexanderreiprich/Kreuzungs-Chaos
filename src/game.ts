@@ -69,8 +69,6 @@ namespace KreuzungsChaos {
         fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, hndLoop);
         fc.Loop.start(fc.LOOP_MODE.TIME_GAME, 60);
 
-        console.log(vehicles.getChildren().length);
-
     }
 
     function hndLoop(_event: Event): void {
@@ -91,6 +89,8 @@ namespace KreuzungsChaos {
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
             currentVehicle.checkInFront();
+
+            currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
             
         }
 
@@ -148,6 +148,8 @@ namespace KreuzungsChaos {
 
         vehicles.addChild(newCar);
         root.addChild(vehicles);
+        console.log("LOCAL" + newCar.mtxLocal.translation);
+        console.log("WORLD" + newCar.mtxWorld.translation);
 
     }
 

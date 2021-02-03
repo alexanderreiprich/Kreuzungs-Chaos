@@ -50,7 +50,6 @@ var KreuzungsChaos;
         //Initialize Loop
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, hndLoop);
         fc.Loop.start(fc.LOOP_MODE.TIME_GAME, 60);
-        console.log(KreuzungsChaos.vehicles.getChildren().length);
     }
     function hndLoop(_event) {
         if (KreuzungsChaos.switchCooldown == false) {
@@ -66,6 +65,7 @@ var KreuzungsChaos;
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
             currentVehicle.checkInFront();
+            currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
         }
         hndCollision();
         KreuzungsChaos.viewport.draw();
@@ -96,6 +96,8 @@ var KreuzungsChaos;
         let newCar = new KreuzungsChaos.Car("Car_" + carCounter, new fc.Vector3(35, 35, .1), colorGenerator());
         KreuzungsChaos.vehicles.addChild(newCar);
         KreuzungsChaos.root.addChild(KreuzungsChaos.vehicles);
+        console.log("LOCAL" + newCar.mtxLocal.translation);
+        console.log("WORLD" + newCar.mtxWorld.translation);
     }
     function hndTraffic(_difficulty) {
         let randomFactor = (Math.random() - 0.75) * 100;

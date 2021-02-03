@@ -1,0 +1,9 @@
+html, body {
+
+    background-color: lightblue;
+    
+}
+img {
+    position: absolute;
+    top: 12.5%;
+}

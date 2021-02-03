@@ -33,7 +33,6 @@ namespace KreuzungsChaos {
         public hitbox: fc.Node = new fc.Node("Hitbox");
         public frontRect: fc.Rectangle;
         public backRect: fc.Rectangle;
-        public turned: boolean = false;
 
         public frontHitNode: fc.Node = new fc.Node("FrontHitNode");
         public backHitNode: fc.Node = new fc.Node("FrontBackNode");
@@ -79,13 +78,13 @@ namespace KreuzungsChaos {
             this.frontRect = new fc.Rectangle(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
             this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);        
 
-            this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
-            this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
+            this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
+            this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
 
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
 
-            // root.appendChild(this.hitbox);
+            this.appendChild(this.hitbox);
         }
 
         public static calculateRotation(_currentPos: fc.Vector3, _targetPos: fc.Vector3): number { // Calculates Rotation towards next target
@@ -184,6 +183,8 @@ namespace KreuzungsChaos {
         }
 
         public followPath(): void { // Makes the Vehicle follow the Path     
+
+            this.mtxWorld.translation = this.mtxLocal.translation;
             
 
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
@@ -330,11 +331,17 @@ namespace KreuzungsChaos {
             for (let i: number = 0; i < vehicles.getChildren().length; i++) {
                 
                 let vectorBetween: fc.Vector3 = new fc.Vector3;
-                vectorBetween = vehicles.getChild(i).mtxLocal.translation;
-                vectorBetween.subtract(this.mtxLocal.translation);
+                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
+                vectorBetween.subtract(this.mtxWorld.translation);
 
                 if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.y < 10 && vectorBetween.y > 0) {
+                    if (vectorBetween.magnitude < 10) {
+                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+                    }
+                }
+                if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
+                    if (vectorBetween.magnitude < 10) {
                         console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                         console.log(vectorBetween);
                     }
