@@ -88,13 +88,12 @@ namespace KreuzungsChaos {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
             currentVehicle.followPath();
             currentVehicle.checkOutOfBounds();
-            currentVehicle.checkInFront();
 
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
             
         }
 
-        hndCollision();
+        //hndCollision();
 
         viewport.draw();
 

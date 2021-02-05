@@ -41,7 +41,7 @@ namespace KreuzungsChaos {
 
         public hndControl(): void {
 
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE])) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
 
                 switchCooldown = true;
                 this.switchState();
@@ -49,7 +49,7 @@ namespace KreuzungsChaos {
 
             }
 
-            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
+            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
 
                 switchCooldown = true;
                 this.emergency();
@@ -59,8 +59,6 @@ namespace KreuzungsChaos {
         }
 
         public switchState(): number { // Switch state from bot red to side red or the other way around
-
-            console.log("SWITCH STATE, COCAINE");
 
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {
                 previousState = this.state.valueOf();
@@ -86,7 +84,10 @@ namespace KreuzungsChaos {
             previousState = this.state.valueOf();
             this.state = STATE.ALL_RED;
             this.stateUpdate = 0;
-            fc.Time.game.setTimer(3000, 1, this.switchState); 
+            fc.Time.game.setTimer(2000, 1, function changeBoolean(): void {
+                switchCooldown = false;
+            });
+            fc.Time.game.setTimer(2000, 1, this.switchState); 
 
             return this.stateUpdate;
 

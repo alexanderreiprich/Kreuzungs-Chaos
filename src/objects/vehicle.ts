@@ -19,7 +19,7 @@ namespace KreuzungsChaos {
 
     export enum STATUS {
 
-        STOP, DRIVING, TURNING, ARRIVED
+        STARTING, STOP, DRIVING, TURNING, ARRIVED
 
     }
 
@@ -27,6 +27,8 @@ namespace KreuzungsChaos {
 
         public startLocation: Street;
         public endLocation: Street;
+        public startLocationID: number;
+        public endLocationID: number;
         public currentStatus: STATUS;
         public currentTarget: fc.Vector3;
         public routeTargets: fc.Vector3[];
@@ -59,7 +61,7 @@ namespace KreuzungsChaos {
 
             console.log("[Car " + this.name + "] Going " + this.startLocation.id + " -> " + this.endLocation.id);
 
-            this.currentStatus = STATUS.STOP;
+            this.currentStatus = STATUS.STARTING;
 
             this.getNextTarget();
 
@@ -76,10 +78,12 @@ namespace KreuzungsChaos {
             this.appendChild(this.backHitNode);
 
             this.frontRect = new fc.Rectangle(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
-            this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);        
+            this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
 
             this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
+
+            console.log(this.startLocationID);
 
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
@@ -140,7 +144,9 @@ namespace KreuzungsChaos {
             } while (rngStartlocation == rngEndlocation);
 
             this.startLocation = _streetlist[rngStartlocation];
+            this.startLocationID = rngStartlocation;
             this.endLocation = _streetlist[rngEndlocation];
+            this.endLocationID = rngEndlocation;
 
         }
 
@@ -154,11 +160,17 @@ namespace KreuzungsChaos {
                 this.getParent().removeChild(this);
 
             }
-            else if (this.currentStatus == STATUS.STOP) {
+            else if (this.currentStatus == STATUS.STARTING) {
 
                 this.mtxLocal.translation = this.startLocation.startInt;
                 this.currentTarget = this.routeTargets.pop();
                 this.currentStatus = STATUS.DRIVING;
+
+            }
+            else if (this.currentStatus == STATUS.STOP) {
+
+                this.currentTarget = this.routeTargets.pop();
+                this.currentStatus = STATUS.STOP;
 
             }
             else if (this.currentStatus == STATUS.DRIVING) {
@@ -185,19 +197,39 @@ namespace KreuzungsChaos {
         public followPath(): void { // Makes the Vehicle follow the Path     
 
             this.mtxWorld.translation = this.mtxLocal.translation;
-            
 
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
-            
 
-            if (trafficlight.state == STATE.SIDE_RED || trafficlight.state == STATE.ALL_RED) {
-                this.stop();
-            }
-            else {
-                this.move();
-            }
 
+            if (this.startLocationID == 0 || this.startLocationID == 1) {
+                if (this.routeTargets.length == 2 && trafficlight.stateUpdate != 2) {
+                    this.stop();
+                }
+                else {
+                    if (this.checkInFront()) {
+                        this.stop();
+                    }
+                    else {
+                        this.move();
+                    }
+                }
+            }
+            else {  
+                if (this.routeTargets.length == 2 && trafficlight.stateUpdate != 1) {
+                    this.stop();
+                }
+                else {
+                    if (this.checkInFront()) {
+
+                        this.stop();
+                    }
+                    else {
+
+                        this.move();
+                    }
+                }
+            }
 
             if (this.mtxLocal.translation.equals(this.currentTarget)) {
 
@@ -254,13 +286,9 @@ namespace KreuzungsChaos {
 
         public stop(): void {
 
-            if (this.routeTargets.length == 2) {
-                this.velocity = 0;
-                this.currentStatus = STATUS.STOP;
-            }
-            else {
-                this.currentStatus = STATUS.DRIVING;
-                this.move();
+            console.log("STOP WAIT A MINUTE");
+            if (this.velocity > 0) {
+                this.velocity -= this.acceleration;
             }
 
         }
@@ -287,7 +315,7 @@ namespace KreuzungsChaos {
                 this.getParent().removeChild(this);
                 console.log("REMOVED");
                 return true;
-                
+
             }
             else {
 
@@ -324,30 +352,36 @@ namespace KreuzungsChaos {
                 }
             }
 
-        } 
+        }
 
-        public checkInFront(): void {
+        public checkInFront(): boolean {
 
             for (let i: number = 0; i < vehicles.getChildren().length; i++) {
-                
+
                 let vectorBetween: fc.Vector3 = new fc.Vector3;
                 vectorBetween = vehicles.getChild(i).mtxWorld.translation;
                 vectorBetween.subtract(this.mtxWorld.translation);
 
                 if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 10) {
+                    if (vectorBetween.magnitude < 3.5) {
                         console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                         console.log(vectorBetween);
+
+                        return true;
                     }
                 }
-                if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 10) {
+                else if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
+                    if (vectorBetween.magnitude < 3.5) {
                         console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                         console.log(vectorBetween);
+
+                        return true;
                     }
                 }
 
             }
+
+            return false;
 
         }
 
