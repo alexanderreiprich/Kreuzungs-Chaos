@@ -101,7 +101,7 @@ namespace KreuzungsChaos {
 
     function createGameEnvironment(): fc.Node { //Creates background/"playingfield" of the game
 
-        let txtBackground: fc.TextureImage = new fc.TextureImage("textures/base_detail.png");
+        let txtBackground: fc.TextureImage = new fc.TextureImage("textures/base_detail.png"); 
         let mtrBackground: fc.Material = new fc.Material("Background", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtBackground));
 
         background.appendChild(new Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 0)));

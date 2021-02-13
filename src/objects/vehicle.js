@@ -100,7 +100,7 @@ var KreuzungsChaos;
             do {
                 rngEndlocation = Math.floor(Math.random() * _streetlist.length);
             } while (rngStartlocation == rngEndlocation);
-            rngStartlocation = 2;
+            rngStartlocation = 3;
             rngEndlocation = 0;
             this.startLocation = _streetlist[rngStartlocation];
             this.startLocationID = rngStartlocation;
@@ -171,22 +171,23 @@ var KreuzungsChaos;
         move() {
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
-            switch (this.mtxLocal.rotation.z) {
+            console.log(this.mtxLocal.rotation.z);
+            switch (Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget)) {
                 case 0:
                     this.currentDirection = LOCATION.TOP;
                     console.log("TOP");
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
-                    console.log("TOP");
+                    //console.log("TOP");
                     break;
                 case -90:
                     this.currentDirection = LOCATION.RIGHT;
-                    console.log("RIGHT");
+                    //console.log("RIGHT");
                     break;
                 case -180:
                     this.currentDirection = LOCATION.BOT;
-                    console.log("BOT");
+                    //console.log("BOT");
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
@@ -302,7 +303,7 @@ var KreuzungsChaos;
                             if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
                                 // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                 //console.log(vectorBetween);
-                                console.log("TOP");
+                                //console.log("ICH NUTZE TOP");
                                 return true;
                             }
                         }
@@ -311,7 +312,7 @@ var KreuzungsChaos;
                             if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
                                 // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                 // console.log(vectorBetween);
-                                console.log("LEFT");
+                                console.log("ICH NUTZE LEFT");
                                 return true;
                             }
                         }
