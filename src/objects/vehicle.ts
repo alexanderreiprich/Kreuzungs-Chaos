@@ -144,6 +144,9 @@ namespace KreuzungsChaos {
                 rngEndlocation = Math.floor(Math.random() * _streetlist.length);
             } while (rngStartlocation == rngEndlocation);
 
+            rngStartlocation = 2;
+            rngEndlocation = 0;
+
             this.startLocation = _streetlist[rngStartlocation];
             this.startLocationID = rngStartlocation;
             this.endLocation = _streetlist[rngEndlocation];
@@ -245,23 +248,26 @@ namespace KreuzungsChaos {
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
-            console.log(this.mtxLocal.rotation.z);
             switch (this.mtxLocal.rotation.z) {
                 case 0:
                     this.currentDirection = LOCATION.TOP;
+                    console.log("TOP");
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
+                    console.log("TOP");
                     break;
                 case -90:
                     this.currentDirection = LOCATION.RIGHT;
-                    console.log(this.mtxLocal.rotation.z);
+                    console.log("RIGHT");
                     break;
                 case -180:
                     this.currentDirection = LOCATION.BOT;
+                    console.log("BOT");
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
+                    console.log("LEFT");
                 default:
                     break;
             }
@@ -420,7 +426,7 @@ namespace KreuzungsChaos {
                             if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                 //console.log(vectorBetween);
-
+                                console.log("TOP");
                                 return true;
                             }
                         }
@@ -430,7 +436,7 @@ namespace KreuzungsChaos {
                             if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                // console.log(vectorBetween);
-                                console.log("TOP LOC");
+                                console.log("LEFT");
                                 return true;
                             }
                         }
@@ -440,7 +446,7 @@ namespace KreuzungsChaos {
                             if (vectorBetween.y > -3.5 && vectorBetween.y < 0) {
                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                 //console.log(vectorBetween);
-
+                                console.log("BOT");
                                 return true;
                             }
                         }
@@ -450,7 +456,7 @@ namespace KreuzungsChaos {
                             if (vectorBetween.x < 3.5 && vectorBetween.x > 0) {
                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
                                 //console.log(vectorBetween);
-
+                                console.log("RIGHT");
                                 return true;
                             }
                         }
