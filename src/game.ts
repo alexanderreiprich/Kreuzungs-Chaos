@@ -39,8 +39,8 @@ namespace KreuzungsChaos {
     function hndLoad(_event: Event): void {
 
         //Variables and Constants
-        const canvas: HTMLCanvasElement = document.querySelector("canvas");
-        txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/bot_red.png");
+        const canvas: HTMLCanvasElement = document.querySelector("canvas"); 
+        txtCurrentLightstate = new fc.TextureImage("textures/trafficlight_states/bot_red.png");
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
@@ -101,17 +101,17 @@ namespace KreuzungsChaos {
 
     function createGameEnvironment(): fc.Node { //Creates background/"playingfield" of the game
 
-        let txtBackground: fc.TextureImage = new fc.TextureImage("../textures/base_clean.png");
+        let txtBackground: fc.TextureImage = new fc.TextureImage("textures/base_detail.png");
         let mtrBackground: fc.Material = new fc.Material("Background", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtBackground));
 
         background.appendChild(new Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 0)));
 
-        let txtLights: fc.TextureImage = new fc.TextureImage("../textures/base_lights_only.png");
+        let txtLights: fc.TextureImage = new fc.TextureImage("textures/base_lights_only.png");
         let mtrLights: fc.Material = new fc.Material("Lights", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtLights));
 
         background.appendChild(new Background(mtrLights, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 2)));
 
-        let txtBorder: fc.TextureImage = new fc.TextureImage("../textures/border.png");
+        let txtBorder: fc.TextureImage = new fc.TextureImage("textures/border.png");
         let mtrBorder: fc.Material = new fc.Material("Border", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtBorder));
 
         background.appendChild(new Background(mtrBorder, new fc.Vector2(25, 25), new fc.Vector3(15, 15, 10)));
@@ -190,7 +190,7 @@ namespace KreuzungsChaos {
             case 0:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/all_red.png");
+                txtCurrentLightstate = new fc.TextureImage("textures/trafficlight_states/all_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_All_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 0);
 
@@ -201,7 +201,7 @@ namespace KreuzungsChaos {
             case 1:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/bot_red.png");
+                txtCurrentLightstate = new fc.TextureImage("textures/trafficlight_states/bot_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Bot_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 1);
 
@@ -213,7 +213,7 @@ namespace KreuzungsChaos {
             case 2:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("../textures/trafficlight_states/side_red.png");
+                txtCurrentLightstate = new fc.TextureImage("textures/trafficlight_states/side_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Side_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 2);
 

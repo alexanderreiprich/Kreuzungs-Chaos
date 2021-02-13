@@ -31,6 +31,7 @@ namespace KreuzungsChaos {
         public endLocationID: number;
         public currentStatus: STATUS;
         public currentTarget: fc.Vector3;
+        public currentDirection: LOCATION;
         public routeTargets: fc.Vector3[];
         public hitbox: fc.Node = new fc.Node("Hitbox");
         public frontRect: fc.Rectangle;
@@ -44,10 +45,10 @@ namespace KreuzungsChaos {
         public acceleration: number = .5;
 
         //Standardmap
-        street1: Street = new Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 21, .1));
-        street2: Street = new Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 9, .1));
-        street3: Street = new Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(9, 13.75, .1));
-        street4: Street = new Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(21, 16.25, .1));
+        street1: Street = new Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
+        street2: Street = new Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
+        street3: Street = new Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
+        street4: Street = new Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
         streetList: Street[] = [this.street1, this.street2, this.street3, this.street4];
         intersection: Intersection = new Intersection("Intersection", this.streetList);
 
@@ -215,7 +216,7 @@ namespace KreuzungsChaos {
                     }
                 }
             }
-            else {  
+            else {
                 if (this.routeTargets.length == 2 && trafficlight.stateUpdate != 1) {
                     this.stop();
                 }
@@ -244,6 +245,28 @@ namespace KreuzungsChaos {
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            console.log(this.mtxLocal.rotation.z);
+            switch (this.mtxLocal.rotation.z) {
+                case 0:
+                    this.currentDirection = LOCATION.TOP;
+                    break;
+                case -0:
+                    this.currentDirection = LOCATION.TOP;
+                    break;
+                case -90:
+                    this.currentDirection = LOCATION.RIGHT;
+                    console.log(this.mtxLocal.rotation.z);
+                    break;
+                case -180:
+                    this.currentDirection = LOCATION.BOT;
+                    break;
+                case 90:
+                    this.currentDirection = LOCATION.LEFT;
+                default:
+                    break;
+            }
+
+
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
 
             // this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
@@ -286,7 +309,6 @@ namespace KreuzungsChaos {
 
         public stop(): void {
 
-            console.log("STOP WAIT A MINUTE");
             if (this.velocity > 0) {
                 this.velocity -= this.acceleration;
             }
@@ -356,7 +378,7 @@ namespace KreuzungsChaos {
 
         public checkInFront(): boolean {
 
-            for (let i: number = 0; i < vehicles.getChildren().length; i++) {
+            /* for (let i: number = 0; i < vehicles.getChildren().length; i++) {
 
                 let vectorBetween: fc.Vector3 = new fc.Vector3;
                 vectorBetween = vehicles.getChild(i).mtxWorld.translation;
@@ -377,6 +399,64 @@ namespace KreuzungsChaos {
 
                         return true;
                     }
+                }
+
+            }
+
+            return false;
+ */
+
+
+            for (let i: number = 0; i < vehicles.getChildren().length; i++) {
+
+                let vectorBetween: fc.Vector3 = new fc.Vector3;
+                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
+                vectorBetween.subtract(this.mtxWorld.translation);
+
+                switch (this.currentDirection) {
+
+                    case LOCATION.TOP:
+                        if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
+                            if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
+                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+
+                                return true;
+                            }
+                        }
+
+                    case LOCATION.LEFT:
+                        if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
+                            if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
+                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                               // console.log(vectorBetween);
+                                console.log("TOP LOC");
+                                return true;
+                            }
+                        }
+                        break;
+                    case LOCATION.BOT:
+                        if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
+                            if (vectorBetween.y > -3.5 && vectorBetween.y < 0) {
+                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+
+                                return true;
+                            }
+                        }
+                        break;
+                    case LOCATION.RIGHT:
+                        if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
+                            if (vectorBetween.x < 3.5 && vectorBetween.x > 0) {
+                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+
+                                return true;
+                            }
+                        }
+                        break;
+                    default:
+                        return false;
                 }
 
             }

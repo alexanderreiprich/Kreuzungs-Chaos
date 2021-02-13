@@ -42,10 +42,10 @@ var KreuzungsChaos;
             this.speedlimit = 50;
             this.acceleration = .5;
             //Standardmap
-            this.street1 = new KreuzungsChaos.Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 21, .1));
-            this.street2 = new KreuzungsChaos.Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 9, .1));
-            this.street3 = new KreuzungsChaos.Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(9, 13.75, .1));
-            this.street4 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(21, 16.25, .1));
+            this.street1 = new KreuzungsChaos.Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
+            this.street2 = new KreuzungsChaos.Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
+            this.street3 = new KreuzungsChaos.Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
+            this.street4 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
             this.streetList = [this.street1, this.street2, this.street3, this.street4];
             this.intersection = new KreuzungsChaos.Intersection("Intersection", this.streetList);
             this.getLocations(this.streetList);
@@ -169,6 +169,26 @@ var KreuzungsChaos;
         move() {
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
+            console.log(this.mtxLocal.rotation.z);
+            switch (this.mtxLocal.rotation.z) {
+                case 0:
+                    this.currentDirection = LOCATION.TOP;
+                    break;
+                case -0:
+                    this.currentDirection = LOCATION.TOP;
+                    break;
+                case -90:
+                    this.currentDirection = LOCATION.RIGHT;
+                    console.log(this.mtxLocal.rotation.z);
+                    break;
+                case -180:
+                    this.currentDirection = LOCATION.BOT;
+                    break;
+                case 90:
+                    this.currentDirection = LOCATION.LEFT;
+                default:
+                    break;
+            }
             this.mtxLocal.translateY(Vehicle.calculateMove(this.mtxLocal.translation, this.currentTarget, this.velocity));
             // this.hitbox.getChild(0).mtxLocal.translation = new fc.Vector3(this.frontRect.position.x, this.frontRect.position.y, 0.5);
             // this.hitbox.getChild(1).mtxLocal.translation = new fc.Vector3(this.backRect.position.x, this.backRect.position.y, 0.5);
@@ -196,7 +216,6 @@ var KreuzungsChaos;
             }
         }
         stop() {
-            console.log("STOP WAIT A MINUTE");
             if (this.velocity > 0) {
                 this.velocity -= this.acceleration;
             }
@@ -241,23 +260,76 @@ var KreuzungsChaos;
             }
         }
         checkInFront() {
+            /* for (let i: number = 0; i < vehicles.getChildren().length; i++) {
+
+                let vectorBetween: fc.Vector3 = new fc.Vector3;
+                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
+                vectorBetween.subtract(this.mtxWorld.translation);
+
+                if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
+                    if (vectorBetween.magnitude < 3.5) {
+                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+
+                        return true;
+                    }
+                }
+                else if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
+                    if (vectorBetween.magnitude < 3.5) {
+                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                        console.log(vectorBetween);
+
+                        return true;
+                    }
+                }
+
+            }
+
+            return false;
+ */
             for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
                 let vectorBetween = new fc.Vector3;
                 vectorBetween = KreuzungsChaos.vehicles.getChild(i).mtxWorld.translation;
                 vectorBetween.subtract(this.mtxWorld.translation);
-                if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-                        return true;
-                    }
-                }
-                else if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + KreuzungsChaos.vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-                        return true;
-                    }
+                switch (this.currentDirection) {
+                    case LOCATION.TOP:
+                        if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                            if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
+                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+                                return true;
+                            }
+                        }
+                    case LOCATION.LEFT:
+                        if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                            if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
+                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                // console.log(vectorBetween);
+                                console.log("TOP LOC");
+                                return true;
+                            }
+                        }
+                        break;
+                    case LOCATION.BOT:
+                        if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                            if (vectorBetween.y > -3.5 && vectorBetween.y < 0) {
+                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+                                return true;
+                            }
+                        }
+                        break;
+                    case LOCATION.RIGHT:
+                        if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
+                            if (vectorBetween.x < 3.5 && vectorBetween.x > 0) {
+                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
+                                //console.log(vectorBetween);
+                                return true;
+                            }
+                        }
+                        break;
+                    default:
+                        return false;
                 }
             }
             return false;
