@@ -30,10 +30,10 @@ namespace KreuzungsChaos {
     let mtrCurrentLightstate: fc.Material;
     export let trafficlight: Trafficlight;
 
-    let txtCross: fc.TextureImage = new fc.TextureImage("../textures/cross.png");
+    let txtCross: fc.TextureImage = new fc.TextureImage("textures/cross.png");
     export let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
 
-    let txtHitbox: fc.TextureImage = new fc.TextureImage("../textures/hitbox.jpg");
+    let txtHitbox: fc.TextureImage = new fc.TextureImage("textures/hitbox.jpg");
     export let mtrHitbox: fc.Material = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtHitbox));
 
     function hndLoad(_event: Event): void {

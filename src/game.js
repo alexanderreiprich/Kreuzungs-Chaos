@@ -20,9 +20,9 @@ var KreuzungsChaos;
     let carCounter;
     KreuzungsChaos.background = new fc.Node("Background");
     let mtrCurrentLightstate;
-    let txtCross = new fc.TextureImage("../textures/cross.png");
+    let txtCross = new fc.TextureImage("textures/cross.png");
     KreuzungsChaos.mtrCross = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtCross));
-    let txtHitbox = new fc.TextureImage("../textures/hitbox.jpg");
+    let txtHitbox = new fc.TextureImage("textures/hitbox.jpg");
     KreuzungsChaos.mtrHitbox = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtHitbox));
     function hndLoad(_event) {
         //Variables and Constants

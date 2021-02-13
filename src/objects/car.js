@@ -14,19 +14,19 @@ var KreuzungsChaos;
         chooseColor(_color) {
             switch (_color) {
                 case 0:
-                    txtCar = new fc.TextureImage("../textures/car_0.png");
+                    txtCar = new fc.TextureImage("textures/car_0.png");
                     break;
                 case 1:
-                    txtCar = new fc.TextureImage("../textures/car_1.png");
+                    txtCar = new fc.TextureImage("textures/car_1.png");
                     break;
                 case 2:
-                    txtCar = new fc.TextureImage("../textures/car_2.png");
+                    txtCar = new fc.TextureImage("textures/car_2.png");
                     break;
                 case 3:
-                    txtCar = new fc.TextureImage("../textures/car_3.png");
+                    txtCar = new fc.TextureImage("textures/car_3.png");
                     break;
                 case 4:
-                    txtCar = new fc.TextureImage("../textures/car_4.png");
+                    txtCar = new fc.TextureImage("textures/car_4.png");
                     break;
                 default:
                     break;
