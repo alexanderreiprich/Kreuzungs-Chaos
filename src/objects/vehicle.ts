@@ -36,6 +36,11 @@ namespace KreuzungsChaos {
         public hitbox: fc.Node = new fc.Node("Hitbox");
         public frontRect: fc.Rectangle;
         public backRect: fc.Rectangle;
+        public angryometer: number = 0;
+
+        public cmpAudio: fc.ComponentAudio;
+        public soundHorn: fc.Audio = new fc.Audio("assets/carhorn.mp3");
+        public soundHorn2: fc.Audio = new fc.Audio("assets/carhorn2.mp3");
 
         public frontHitNode: fc.Node = new fc.Node("FrontHitNode");
         public backHitNode: fc.Node = new fc.Node("FrontBackNode");
@@ -46,9 +51,9 @@ namespace KreuzungsChaos {
 
         //Standardmap
         street1: Street = new Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
-        street2: Street = new Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
-        street3: Street = new Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
-        street4: Street = new Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
+        street2: Street = new Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
+        street3: Street = new Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
+        street4: Street = new Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
         streetList: Street[] = [this.street1, this.street2, this.street3, this.street4];
         intersection: Intersection = new Intersection("Intersection", this.streetList);
 
@@ -85,6 +90,10 @@ namespace KreuzungsChaos {
             this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
 
             console.log(this.startLocationID);
+
+            this.cmpAudio = new fc.ComponentAudio(this.soundHorn, false, false);
+            this.cmpAudio.connect(true);
+            this.cmpAudio.volume = 0.1;
 
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
@@ -144,14 +153,18 @@ namespace KreuzungsChaos {
                 rngEndlocation = Math.floor(Math.random() * _streetlist.length);
             } while (rngStartlocation == rngEndlocation);
 
-            rngStartlocation = 3;
-            rngEndlocation = 0;
-
             this.startLocation = _streetlist[rngStartlocation];
             this.startLocationID = rngStartlocation;
             this.endLocation = _streetlist[rngEndlocation];
             this.endLocationID = rngEndlocation;
 
+            if (rngEndlocation == rngStartlocation + 1) {
+                this.getLocations(this.streetList);
+            }
+            else if (rngStartlocation == 3 && rngEndlocation == 0) {
+                this.getLocations(this.streetList);
+            }
+            
         }
 
         public getNextTarget(): void { // Changes Target after initialization/reached destination
@@ -206,7 +219,7 @@ namespace KreuzungsChaos {
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
 
 
-            if (this.startLocationID == 0 || this.startLocationID == 1) {
+            if (this.startLocationID == 0 || this.startLocationID == 2) {
                 if (this.routeTargets.length == 2 && trafficlight.stateUpdate != 2) {
                     this.stop();
                 }
@@ -245,15 +258,17 @@ namespace KreuzungsChaos {
 
         public move(): void { // Main function that moves the vehicle
 
+            if (this.currentStatus != STATUS.DRIVING) {
+                this.currentStatus = STATUS.DRIVING;
+            }
+
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
             
-            console.log(this.mtxLocal.rotation.z);
             switch (Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget)) {
                 case 0:
                     this.currentDirection = LOCATION.TOP;
-                    console.log("TOP");
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
@@ -269,7 +284,6 @@ namespace KreuzungsChaos {
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
-                    console.log("LEFT");
                 default:
                     break;
             }
@@ -320,6 +334,11 @@ namespace KreuzungsChaos {
             if (this.velocity > 0) {
                 this.velocity -= this.acceleration;
             }
+            else if (this.currentStatus != STATUS.STOP) {
+                console.log("angryyy");
+                this.currentStatus = STATUS.STOP;
+                fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
+            }
 
         }
 
@@ -328,6 +347,25 @@ namespace KreuzungsChaos {
             this.moveAside();
             //if event over
             this.moveBack();
+
+        }
+
+        public hndAngryOMeter(): void {
+
+            console.log("angry o meter initialized");   
+
+            if (this.velocity == 0) {
+                console.log("going angry");
+                if (this.angryometer != 3) {
+                    this.cmpAudio.setAudio(this.soundHorn);
+                    this.cmpAudio.play(true);
+                    this.angryometer++;
+                }
+                else {
+                    this.move();
+                }
+
+            }
 
         }
 
@@ -345,7 +383,6 @@ namespace KreuzungsChaos {
                 this.getParent().removeChild(this);
                 console.log("REMOVED");
                 return true;
-
             }
             else {
 

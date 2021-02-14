@@ -36,6 +36,9 @@ var KreuzungsChaos;
         constructor(_name, _size, _position) {
             super(_name, _size, _position);
             this.hitbox = new fc.Node("Hitbox");
+            this.angryometer = 0;
+            this.soundHorn = new fc.Audio("assets/carhorn.mp3");
+            this.soundHorn2 = new fc.Audio("assets/carhorn2.mp3");
             this.frontHitNode = new fc.Node("FrontHitNode");
             this.backHitNode = new fc.Node("FrontBackNode");
             this.velocity = 0;
@@ -43,9 +46,9 @@ var KreuzungsChaos;
             this.acceleration = .5;
             //Standardmap
             this.street1 = new KreuzungsChaos.Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
-            this.street2 = new KreuzungsChaos.Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
-            this.street3 = new KreuzungsChaos.Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
-            this.street4 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
+            this.street2 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
+            this.street3 = new KreuzungsChaos.Street("BOTSTREET", new fc.Vector3(16.25, -5, .1), new fc.Vector3(16.25, 12, .1), new fc.Vector3(13.75, 12, .1), new fc.Vector3(13.75, -5, .1), new fc.Vector3(16.25, 8, .1));
+            this.street4 = new KreuzungsChaos.Street("LEFTSTREET", new fc.Vector3(-5, 13.75, .1), new fc.Vector3(12, 13.75, .1), new fc.Vector3(12, 16.25, .1), new fc.Vector3(-5, 16.25, .1), new fc.Vector3(8, 13.75, .1));
             this.streetList = [this.street1, this.street2, this.street3, this.street4];
             this.intersection = new KreuzungsChaos.Intersection("Intersection", this.streetList);
             this.getLocations(this.streetList);
@@ -66,6 +69,9 @@ var KreuzungsChaos;
             this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
             console.log(this.startLocationID);
+            this.cmpAudio = new fc.ComponentAudio(this.soundHorn, false, false);
+            this.cmpAudio.connect(true);
+            this.cmpAudio.volume = 0.1;
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
             // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
             this.appendChild(this.hitbox);
@@ -100,12 +106,16 @@ var KreuzungsChaos;
             do {
                 rngEndlocation = Math.floor(Math.random() * _streetlist.length);
             } while (rngStartlocation == rngEndlocation);
-            rngStartlocation = 3;
-            rngEndlocation = 0;
             this.startLocation = _streetlist[rngStartlocation];
             this.startLocationID = rngStartlocation;
             this.endLocation = _streetlist[rngEndlocation];
             this.endLocationID = rngEndlocation;
+            if (rngEndlocation == rngStartlocation + 1) {
+                this.getLocations(this.streetList);
+            }
+            else if (rngStartlocation == 3 && rngEndlocation == 0) {
+                this.getLocations(this.streetList);
+            }
         }
         getNextTarget() {
             if (this.routeTargets.length == 0) {
@@ -138,7 +148,7 @@ var KreuzungsChaos;
             this.mtxWorld.translation = this.mtxLocal.translation;
             this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
-            if (this.startLocationID == 0 || this.startLocationID == 1) {
+            if (this.startLocationID == 0 || this.startLocationID == 2) {
                 if (this.routeTargets.length == 2 && KreuzungsChaos.trafficlight.stateUpdate != 2) {
                     this.stop();
                 }
@@ -169,13 +179,14 @@ var KreuzungsChaos;
             }
         }
         move() {
+            if (this.currentStatus != STATUS.DRIVING) {
+                this.currentStatus = STATUS.DRIVING;
+            }
             this.calculateVelocity();
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
-            console.log(this.mtxLocal.rotation.z);
             switch (Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget)) {
                 case 0:
                     this.currentDirection = LOCATION.TOP;
-                    console.log("TOP");
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
@@ -191,7 +202,6 @@ var KreuzungsChaos;
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
-                    console.log("LEFT");
                 default:
                     break;
             }
@@ -225,11 +235,30 @@ var KreuzungsChaos;
             if (this.velocity > 0) {
                 this.velocity -= this.acceleration;
             }
+            else if (this.currentStatus != STATUS.STOP) {
+                console.log("angryyy");
+                this.currentStatus = STATUS.STOP;
+                fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
+            }
         }
         hndEvent() {
             this.moveAside();
             //if event over
             this.moveBack();
+        }
+        hndAngryOMeter() {
+            console.log("angry o meter initialized");
+            if (this.velocity == 0) {
+                console.log("going angry");
+                if (this.angryometer != 3) {
+                    this.cmpAudio.setAudio(this.soundHorn);
+                    this.cmpAudio.play(true);
+                    this.angryometer++;
+                }
+                else {
+                    this.move();
+                }
+            }
         }
         rotateVector(_vector, _rotation) {
             _vector.transform(fc.Matrix4x4.ROTATION_Z(_rotation));
