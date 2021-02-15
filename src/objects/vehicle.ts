@@ -37,6 +37,7 @@ namespace KreuzungsChaos {
         public frontRect: fc.Rectangle;
         public backRect: fc.Rectangle;
         public angryometer: number = 0;
+        public angryometerInit: boolean = false;
 
         public cmpAudio: fc.ComponentAudio;
         public soundHorn: fc.Audio = new fc.Audio("assets/carhorn.mp3");
@@ -45,7 +46,7 @@ namespace KreuzungsChaos {
         public frontHitNode: fc.Node = new fc.Node("FrontHitNode");
         public backHitNode: fc.Node = new fc.Node("FrontBackNode");
 
-        public velocity: number = 0;
+        public velocity: number = 1;
         public speedlimit: number = 50;
         public acceleration: number = .5;
 
@@ -164,7 +165,7 @@ namespace KreuzungsChaos {
             else if (rngStartlocation == 3 && rngEndlocation == 0) {
                 this.getLocations(this.streetList);
             }
-            
+
         }
 
         public getNextTarget(): void { // Changes Target after initialization/reached destination
@@ -238,11 +239,9 @@ namespace KreuzungsChaos {
                 }
                 else {
                     if (this.checkInFront()) {
-
                         this.stop();
                     }
                     else {
-
                         this.move();
                     }
                 }
@@ -256,6 +255,22 @@ namespace KreuzungsChaos {
 
         }
 
+        public followPathIgnoreStops(): void {
+
+            this.mtxWorld.translation = this.mtxLocal.translation;
+
+            this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
+            this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
+
+            this.move();
+
+            if (this.mtxLocal.translation.equals(this.currentTarget)) {
+
+                this.onTargetReached();
+
+            }
+        }
+
         public move(): void { // Main function that moves the vehicle
 
             if (this.currentStatus != STATUS.DRIVING) {
@@ -265,7 +280,7 @@ namespace KreuzungsChaos {
             this.calculateVelocity();
 
             this.mtxLocal.rotation = new fc.Vector3(0, 0, Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget));
-            
+
             switch (Vehicle.calculateRotation(this.mtxLocal.translation, this.currentTarget)) {
                 case 0:
                     this.currentDirection = LOCATION.TOP;
@@ -337,7 +352,7 @@ namespace KreuzungsChaos {
             else if (this.currentStatus != STATUS.STOP) {
                 console.log("angryyy");
                 this.currentStatus = STATUS.STOP;
-                fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
+                //fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
             }
 
         }
@@ -352,7 +367,8 @@ namespace KreuzungsChaos {
 
         public hndAngryOMeter(): void {
 
-            console.log("angry o meter initialized");   
+            console.log("angry o meter initialized");
+            this.angryometerInit = true;
 
             if (this.velocity == 0) {
                 console.log("going angry");
@@ -360,9 +376,6 @@ namespace KreuzungsChaos {
                     this.cmpAudio.setAudio(this.soundHorn);
                     this.cmpAudio.play(true);
                     this.angryometer++;
-                }
-                else {
-                    this.move();
                 }
 
             }
@@ -422,86 +435,20 @@ namespace KreuzungsChaos {
         }
 
         public checkInFront(): boolean {
-
-            /* for (let i: number = 0; i < vehicles.getChildren().length; i++) {
-
-                let vectorBetween: fc.Vector3 = new fc.Vector3;
-                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
-                vectorBetween.subtract(this.mtxWorld.translation);
-
-                if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-
-                        return true;
-                    }
-                }
-                else if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-
-                        return true;
-                    }
-                }
-
-            }
-
-            return false;
- */
-
-
             for (let i: number = 0; i < vehicles.getChildren().length; i++) {
 
-                let vectorBetween: fc.Vector3 = new fc.Vector3;
-                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
-                vectorBetween.subtract(this.mtxWorld.translation);
+                let currentchild: fc.Node = vehicles.getChild(i);
 
-                switch (this.currentDirection) {
+                if (!(currentchild.name === this.name)) {
+                    let vectorBetween: fc.Vector2 = fc.Vector3.DIFFERENCE(currentchild.mtxWorld.translation, this.mtxWorld.translation).toVector2();
+                    let vectorTarget: fc.Vector2 = fc.Vector3.DIFFERENCE(this.currentTarget, this.mtxWorld.translation).toVector2();
+                    let v: number = fc.Vector2.DOT(vectorBetween, vectorTarget) / (vectorBetween.magnitude * vectorTarget.magnitude);
+                    let rotation: number = 180 * Math.acos(v) / Math.PI;
+                   
+                    if (vectorBetween.magnitude <= 3.5 && rotation < 10) {
+                        return true;
+                    }
 
-                    case LOCATION.TOP:
-                        if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                            if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
-                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                //console.log("ICH NUTZE TOP");
-                                return true;
-                            }
-                        }
-
-                    case LOCATION.LEFT:
-                        if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
-                            if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
-                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                               // console.log(vectorBetween);
-                                console.log("ICH NUTZE LEFT");
-                                return true;
-                            }
-                        }
-                        break;
-                    case LOCATION.BOT:
-                        if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                            if (vectorBetween.y > -3.5 && vectorBetween.y < 0) {
-                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                console.log("BOT");
-                                return true;
-                            }
-                        }
-                        break;
-                    case LOCATION.RIGHT:
-                        if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
-                            if (vectorBetween.x < 3.5 && vectorBetween.x > 0) {
-                               // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                console.log("RIGHT");
-                                return true;
-                            }
-                        }
-                        break;
-                    default:
-                        return false;
                 }
 
             }

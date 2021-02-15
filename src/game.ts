@@ -96,7 +96,19 @@ namespace KreuzungsChaos {
 
         for (let i: number = 0; i < vehicles.getChildren().length; i++) {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
-            currentVehicle.followPath();
+
+            if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
+                fc.Time.game.setTimer(20000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+            }
+            else if (currentVehicle.angryometer == 3) {
+                currentVehicle.followPathIgnoreStops();
+            }
+            else {
+                currentVehicle.followPath();
+            }
+
+            
+
             currentVehicle.checkOutOfBounds();
 
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;

@@ -37,11 +37,12 @@ var KreuzungsChaos;
             super(_name, _size, _position);
             this.hitbox = new fc.Node("Hitbox");
             this.angryometer = 0;
+            this.angryometerInit = false;
             this.soundHorn = new fc.Audio("assets/carhorn.mp3");
             this.soundHorn2 = new fc.Audio("assets/carhorn2.mp3");
             this.frontHitNode = new fc.Node("FrontHitNode");
             this.backHitNode = new fc.Node("FrontBackNode");
-            this.velocity = 0;
+            this.velocity = 1;
             this.speedlimit = 50;
             this.acceleration = .5;
             //Standardmap
@@ -178,6 +179,15 @@ var KreuzungsChaos;
                 this.onTargetReached();
             }
         }
+        followPathIgnoreStops() {
+            this.mtxWorld.translation = this.mtxLocal.translation;
+            this.frontRect.position = this.frontHitNode.mtxWorld.translation.toVector2();
+            this.backRect.position = this.backHitNode.mtxWorld.translation.toVector2();
+            this.move();
+            if (this.mtxLocal.translation.equals(this.currentTarget)) {
+                this.onTargetReached();
+            }
+        }
         move() {
             if (this.currentStatus != STATUS.DRIVING) {
                 this.currentStatus = STATUS.DRIVING;
@@ -238,7 +248,7 @@ var KreuzungsChaos;
             else if (this.currentStatus != STATUS.STOP) {
                 console.log("angryyy");
                 this.currentStatus = STATUS.STOP;
-                fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
+                //fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
             }
         }
         hndEvent() {
@@ -248,15 +258,13 @@ var KreuzungsChaos;
         }
         hndAngryOMeter() {
             console.log("angry o meter initialized");
+            this.angryometerInit = true;
             if (this.velocity == 0) {
                 console.log("going angry");
                 if (this.angryometer != 3) {
                     this.cmpAudio.setAudio(this.soundHorn);
                     this.cmpAudio.play(true);
                     this.angryometer++;
-                }
-                else {
-                    this.move();
                 }
             }
         }
@@ -295,79 +303,16 @@ var KreuzungsChaos;
             }
         }
         checkInFront() {
-            /* for (let i: number = 0; i < vehicles.getChildren().length; i++) {
-
-                let vectorBetween: fc.Vector3 = new fc.Vector3;
-                vectorBetween = vehicles.getChild(i).mtxWorld.translation;
-                vectorBetween.subtract(this.mtxWorld.translation);
-
-                if (vectorBetween.x == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-
-                        return true;
-                    }
-                }
-                else if (vectorBetween.y == 0 && vehicles.getChild(i) != this) {
-                    if (vectorBetween.magnitude < 3.5) {
-                        console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                        console.log(vectorBetween);
-
-                        return true;
-                    }
-                }
-
-            }
-
-            return false;
- */
             for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
-                let vectorBetween = new fc.Vector3;
-                vectorBetween = KreuzungsChaos.vehicles.getChild(i).mtxWorld.translation;
-                vectorBetween.subtract(this.mtxWorld.translation);
-                switch (this.currentDirection) {
-                    case LOCATION.TOP:
-                        if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                            if (vectorBetween.y < 3.5 && vectorBetween.y > 0) {
-                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                //console.log("ICH NUTZE TOP");
-                                return true;
-                            }
-                        }
-                    case LOCATION.LEFT:
-                        if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                            if (vectorBetween.x > -3.5 && vectorBetween.x < 0) {
-                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                // console.log(vectorBetween);
-                                console.log("ICH NUTZE LEFT");
-                                return true;
-                            }
-                        }
-                        break;
-                    case LOCATION.BOT:
-                        if (vectorBetween.x == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                            if (vectorBetween.y > -3.5 && vectorBetween.y < 0) {
-                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                console.log("BOT");
-                                return true;
-                            }
-                        }
-                        break;
-                    case LOCATION.RIGHT:
-                        if (vectorBetween.y == 0 && KreuzungsChaos.vehicles.getChild(i) != this) {
-                            if (vectorBetween.x < 3.5 && vectorBetween.x > 0) {
-                                // console.log(this.name + " SIEHT GERADE " + vehicles.getChild(i).name);
-                                //console.log(vectorBetween);
-                                console.log("RIGHT");
-                                return true;
-                            }
-                        }
-                        break;
-                    default:
-                        return false;
+                let currentchild = KreuzungsChaos.vehicles.getChild(i);
+                if (!(currentchild.name === this.name)) {
+                    let vectorBetween = fc.Vector3.DIFFERENCE(currentchild.mtxWorld.translation, this.mtxWorld.translation).toVector2();
+                    let vectorTarget = fc.Vector3.DIFFERENCE(this.currentTarget, this.mtxWorld.translation).toVector2();
+                    let v = fc.Vector2.DOT(vectorBetween, vectorTarget) / (vectorBetween.magnitude * vectorTarget.magnitude);
+                    let rotation = 180 * Math.acos(v) / Math.PI;
+                    if (vectorBetween.magnitude <= 3.5 && rotation < 10) {
+                        return true;
+                    }
                 }
             }
             return false;

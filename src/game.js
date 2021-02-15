@@ -70,7 +70,15 @@ var KreuzungsChaos;
         }
         for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
             let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
-            currentVehicle.followPath();
+            if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
+                fc.Time.game.setTimer(20000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+            }
+            else if (currentVehicle.angryometer == 3) {
+                currentVehicle.followPathIgnoreStops();
+            }
+            else {
+                currentVehicle.followPath();
+            }
             currentVehicle.checkOutOfBounds();
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
         }
