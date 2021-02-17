@@ -26,6 +26,8 @@ namespace KreuzungsChaos {
     export let switchCooldown: boolean = false;
     let carCounter: number;
 
+    export let score: number;
+
     let cmpAudio: fc.ComponentAudio;
     let soundAmbient: fc.Audio = new fc.Audio("assets/ambience.mp3");
 
@@ -42,13 +44,14 @@ namespace KreuzungsChaos {
     function hndLoad(_event: Event): void {
 
         //Variables and Constants
-        const canvas: HTMLCanvasElement = document.querySelector("canvas"); 
+        const canvas: HTMLCanvasElement = document.querySelector("canvas");
         txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/bot_red.png");
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
         difficulty = 2000;
         carCounter = 0;
+        score = 0;
 
         //Camera
         let cmpCamera: fc.ComponentCamera = new fc.ComponentCamera();
@@ -72,6 +75,7 @@ namespace KreuzungsChaos {
         createLights();
         createCar();
         hndTraffic(difficulty);
+        window.addEventListener("click", hndClick);
 
         //Timers
 
@@ -83,22 +87,21 @@ namespace KreuzungsChaos {
 
     function hndLoop(_event: Event): void {
 
-        if (switchCooldown == false) {
-            trafficlight.hndControl();
-        }
+        // if (switchCooldown == false) {
+        //     trafficlight.hndControl();
+        // }
 
-
-        if (trafficlight.stateUpdate != currentState) {
-            updateLights(trafficlight.stateUpdate);
-            currentState = trafficlight.stateUpdate;
-            console.log(root);
-        }
+        // if (trafficlight.stateUpdate != currentState) {
+        //     updateLights(trafficlight.stateUpdate);
+        //     currentState = trafficlight.stateUpdate;
+        //     console.log(root);
+        // }
 
         for (let i: number = 0; i < vehicles.getChildren().length; i++) {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
 
             if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
-                fc.Time.game.setTimer(20000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+                fc.Time.game.setTimer(2000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
             }
             else if (currentVehicle.angryometer == 3) {
                 currentVehicle.followPathIgnoreStops();
@@ -107,15 +110,15 @@ namespace KreuzungsChaos {
                 currentVehicle.followPath();
             }
 
-            
-
-            currentVehicle.checkOutOfBounds();
-
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
-            
+
         }
 
         //hndCollision();
+
+        hndEmergency();
+
+        updateScore();
 
         viewport.draw();
 
@@ -123,7 +126,7 @@ namespace KreuzungsChaos {
 
     function createGameEnvironment(): fc.Node { //Creates background/"playingfield" of the game
 
-        let txtBackground: fc.TextureImage = new fc.TextureImage("assets/base_detail.png"); 
+        let txtBackground: fc.TextureImage = new fc.TextureImage("assets/base_detail.png");
         let mtrBackground: fc.Material = new fc.Material("Background", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtBackground));
 
         background.appendChild(new Background(mtrBackground, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 0)));
@@ -138,8 +141,8 @@ namespace KreuzungsChaos {
 
         background.appendChild(new Background(mtrBorder, new fc.Vector2(25, 25), new fc.Vector3(15, 15, 10)));
 
-       
-        
+
+
 
         return background;
 
@@ -203,7 +206,23 @@ namespace KreuzungsChaos {
             }
 
         }
-            
+
+    }
+
+    function hndClick(): void {
+
+        if (switchCooldown == false) {
+            trafficlight.hndControl();
+        }
+
+        updateLights(trafficlight.stateUpdate);
+        currentState = trafficlight.stateUpdate;
+
+    }
+
+    function hndEmergency(): void {
+
+        trafficlight.checkForEmergency();
     }
 
     function updateLights(_number: number): void { // Updates lights after input
@@ -248,6 +267,13 @@ namespace KreuzungsChaos {
                 break;
 
         }
+
+    }
+
+    function updateScore(): void {
+
+        let divScore: HTMLDivElement = document.querySelector("div#scoreNumber");
+        divScore.innerHTML = score.toString();
 
     }
 

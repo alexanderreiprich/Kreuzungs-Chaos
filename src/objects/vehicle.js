@@ -123,6 +123,7 @@ var KreuzungsChaos;
                 console.log("TARGET REACHED");
                 this.currentStatus = STATUS.ARRIVED;
                 this.getParent().removeChild(this);
+                KreuzungsChaos.score += 1000;
             }
             else if (this.currentStatus == STATUS.STARTING) {
                 this.mtxLocal.translation = this.startLocation.startInt;
@@ -242,13 +243,10 @@ var KreuzungsChaos;
             }
         }
         stop() {
-            if (this.velocity > 0) {
-                this.velocity -= this.acceleration;
-            }
-            else if (this.currentStatus != STATUS.STOP) {
+            this.velocity = 0;
+            if (this.currentStatus != STATUS.STOP) {
                 console.log("angryyy");
                 this.currentStatus = STATUS.STOP;
-                //fc.Time.game.setTimer(4000, 3, this.hndAngryOMeter);
             }
         }
         hndEvent() {
@@ -273,9 +271,8 @@ var KreuzungsChaos;
             return _vector;
         }
         checkOutOfBounds() {
-            if (this.mtxLocal.translation.x < -10 || this.mtxLocal.translation.x > 40 || this.mtxLocal.translation.y < -10 || this.mtxLocal.translation.y > 40) {
-                this.getParent().removeChild(this);
-                console.log("REMOVED");
+            if (this.mtxWorld.translation.x < -10 || this.mtxWorld.translation.x > 40 || this.mtxWorld.translation.y < -10 || this.mtxWorld.translation.y > 40) {
+                console.log("BRUDER ICH MUSS ENTFERNT WERDEN");
                 return true;
             }
             else {

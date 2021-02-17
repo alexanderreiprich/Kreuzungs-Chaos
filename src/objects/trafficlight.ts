@@ -41,20 +41,39 @@ namespace KreuzungsChaos {
 
         public hndControl(): void {
 
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
+            if (switchCooldown == false) {
 
                 switchCooldown = true;
                 this.switchState();
-                
 
             }
 
-            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
+            // if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
+
+            //     switchCooldown = true;
+            //     this.switchState();
+
+            // }
+
+            // else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
+
+            //     switchCooldown = true;
+            //     this.emergency();
+
+            // }
+
+        }
+
+        public checkForEmergency(): void {
+       
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
 
                 switchCooldown = true;
                 this.emergency();
 
             }
+
+            //FIX EMERGENCY BUTTON
 
         }
 

@@ -1,9 +1,21 @@
 html, body {
-
     background-color: lightblue;
-    
 }
 img {
     position: absolute;
     top: 12.5%;
+}
+div#scoreDiv {
+    position: absolute;
+    font-size: 50px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: white;
+    top: 62%;
+    left: 4%;
+    text-align: center;
+    letter-spacing: 3px;
+    text-shadow: 3px 3px 4px #777
+}
+div#scoreNumber {
+    letter-spacing: normal;
 }

@@ -31,14 +31,25 @@ var KreuzungsChaos;
             this.addComponent(cmpMaterial);
         }
         hndControl() {
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && KreuzungsChaos.switchCooldown == false) {
+            if (KreuzungsChaos.switchCooldown == false) {
                 KreuzungsChaos.switchCooldown = true;
                 this.switchState();
             }
-            else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && KreuzungsChaos.switchCooldown == false) {
+            // if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
+            //     switchCooldown = true;
+            //     this.switchState();
+            // }
+            // else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
+            //     switchCooldown = true;
+            //     this.emergency();
+            // }
+        }
+        checkForEmergency() {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && KreuzungsChaos.switchCooldown == false) {
                 KreuzungsChaos.switchCooldown = true;
                 this.emergency();
             }
+            //FIX EMERGENCY BUTTON
         }
         switchState() {
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {

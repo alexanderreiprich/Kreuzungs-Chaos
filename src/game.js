@@ -35,6 +35,7 @@ var KreuzungsChaos;
         KreuzungsChaos.currentState = 1;
         KreuzungsChaos.difficulty = 2000;
         carCounter = 0;
+        KreuzungsChaos.score = 0;
         //Camera
         let cmpCamera = new fc.ComponentCamera();
         cmpCamera.pivot.translate(new fc.Vector3(15, 15, 40));
@@ -54,24 +55,25 @@ var KreuzungsChaos;
         createLights();
         createCar();
         hndTraffic(KreuzungsChaos.difficulty);
+        window.addEventListener("click", hndClick);
         //Timers
         //Initialize Loop
         fc.Loop.addEventListener("loopFrame" /* LOOP_FRAME */, hndLoop);
         fc.Loop.start(fc.LOOP_MODE.TIME_GAME, 60);
     }
     function hndLoop(_event) {
-        if (KreuzungsChaos.switchCooldown == false) {
-            KreuzungsChaos.trafficlight.hndControl();
-        }
-        if (KreuzungsChaos.trafficlight.stateUpdate != KreuzungsChaos.currentState) {
-            updateLights(KreuzungsChaos.trafficlight.stateUpdate);
-            KreuzungsChaos.currentState = KreuzungsChaos.trafficlight.stateUpdate;
-            console.log(KreuzungsChaos.root);
-        }
+        // if (switchCooldown == false) {
+        //     trafficlight.hndControl();
+        // }
+        // if (trafficlight.stateUpdate != currentState) {
+        //     updateLights(trafficlight.stateUpdate);
+        //     currentState = trafficlight.stateUpdate;
+        //     console.log(root);
+        // }
         for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
             let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
             if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
-                fc.Time.game.setTimer(20000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+                fc.Time.game.setTimer(2000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
             }
             else if (currentVehicle.angryometer == 3) {
                 currentVehicle.followPathIgnoreStops();
@@ -79,10 +81,11 @@ var KreuzungsChaos;
             else {
                 currentVehicle.followPath();
             }
-            currentVehicle.checkOutOfBounds();
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
         }
         //hndCollision();
+        hndEmergency();
+        updateScore();
         KreuzungsChaos.viewport.draw();
     }
     function createGameEnvironment() {
@@ -132,6 +135,16 @@ var KreuzungsChaos;
             }
         }
     }
+    function hndClick() {
+        if (KreuzungsChaos.switchCooldown == false) {
+            KreuzungsChaos.trafficlight.hndControl();
+        }
+        updateLights(KreuzungsChaos.trafficlight.stateUpdate);
+        KreuzungsChaos.currentState = KreuzungsChaos.trafficlight.stateUpdate;
+    }
+    function hndEmergency() {
+        KreuzungsChaos.trafficlight.checkForEmergency();
+    }
     function updateLights(_number) {
         switch (_number) {
             case 0:
@@ -161,6 +174,10 @@ var KreuzungsChaos;
             default:
                 break;
         }
+    }
+    function updateScore() {
+        let divScore = document.querySelector("div#scoreNumber");
+        divScore.innerHTML = KreuzungsChaos.score.toString();
     }
     function colorGenerator() {
         let colorInt = Math.random();
