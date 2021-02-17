@@ -25,6 +25,7 @@ namespace KreuzungsChaos {
     //NOT CHANGEABLE
     export let switchCooldown: boolean = false;
     let carCounter: number;
+    let waitingCarCounter: number;
 
     export let score: number;
 
@@ -49,8 +50,9 @@ namespace KreuzungsChaos {
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
         previousState = 1;
         currentState = 1;
-        difficulty = 2000;
+        difficulty = 1750;
         carCounter = 0;
+        waitingCarCounter = 0;
         score = 0;
 
         //Camera
@@ -87,24 +89,29 @@ namespace KreuzungsChaos {
 
     function hndLoop(_event: Event): void {
 
-        // if (switchCooldown == false) {
-        //     trafficlight.hndControl();
-        // }
-
-        // if (trafficlight.stateUpdate != currentState) {
-        //     updateLights(trafficlight.stateUpdate);
-        //     currentState = trafficlight.stateUpdate;
-        //     console.log(root);
-        // }
-
         for (let i: number = 0; i < vehicles.getChildren().length; i++) {
             let currentVehicle: Vehicle = <Vehicle>vehicles.getChild(i);
 
-            if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
-                fc.Time.game.setTimer(2000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
-            }
-            else if (currentVehicle.angryometer == 3) {
+            if (currentVehicle.angryometerInit == true && currentVehicle.angryometer == 3) {
                 currentVehicle.followPathIgnoreStops();
+            }
+            else if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) { // Auto hält gerade an
+
+                currentVehicle.angryometerInit = true;
+                fc.Time.game.setTimer(5000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+                
+            }
+            else if (currentVehicle.angryometerInit == true && currentVehicle.velocity != 0) { // Auto fährt wieder
+
+                if (currentVehicle.checkInFront() == false && currentVehicle.angryometer != 3) { // Auto fährt vor 
+                    currentVehicle.followPath();
+                }
+
+            }
+            else if (currentVehicle.angryometerInit == true && currentVehicle.velocity == 0) { // Auto steht
+
+                currentVehicle.followPath();
+
             }
             else {
                 currentVehicle.followPath();
@@ -179,7 +186,7 @@ namespace KreuzungsChaos {
 
     function hndTraffic(_difficulty: number): void { // Loop that creates a car after a random amount of time
 
-        let randomFactor: number = (Math.random() - 0.75) * 100;
+        let randomFactor: number = fc.Random.default.getRange(-500, 500);
 
         _difficulty = _difficulty + randomFactor;
 

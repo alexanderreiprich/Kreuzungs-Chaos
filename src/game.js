@@ -18,6 +18,7 @@ var KreuzungsChaos;
     //NOT CHANGEABLE
     KreuzungsChaos.switchCooldown = false;
     let carCounter;
+    let waitingCarCounter;
     let cmpAudio;
     let soundAmbient = new fc.Audio("assets/ambience.mp3");
     KreuzungsChaos.background = new fc.Node("Background");
@@ -33,8 +34,9 @@ var KreuzungsChaos;
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
         KreuzungsChaos.previousState = 1;
         KreuzungsChaos.currentState = 1;
-        KreuzungsChaos.difficulty = 2000;
+        KreuzungsChaos.difficulty = 1750;
         carCounter = 0;
+        waitingCarCounter = 0;
         KreuzungsChaos.score = 0;
         //Camera
         let cmpCamera = new fc.ComponentCamera();
@@ -62,21 +64,22 @@ var KreuzungsChaos;
         fc.Loop.start(fc.LOOP_MODE.TIME_GAME, 60);
     }
     function hndLoop(_event) {
-        // if (switchCooldown == false) {
-        //     trafficlight.hndControl();
-        // }
-        // if (trafficlight.stateUpdate != currentState) {
-        //     updateLights(trafficlight.stateUpdate);
-        //     currentState = trafficlight.stateUpdate;
-        //     console.log(root);
-        // }
         for (let i = 0; i < KreuzungsChaos.vehicles.getChildren().length; i++) {
             let currentVehicle = KreuzungsChaos.vehicles.getChild(i);
-            if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) {
-                fc.Time.game.setTimer(2000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
-            }
-            else if (currentVehicle.angryometer == 3) {
+            if (currentVehicle.angryometerInit == true && currentVehicle.angryometer == 3) {
                 currentVehicle.followPathIgnoreStops();
+            }
+            else if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) { // Auto hält gerade an
+                currentVehicle.angryometerInit = true;
+                fc.Time.game.setTimer(5000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+            }
+            else if (currentVehicle.angryometerInit == true && currentVehicle.velocity != 0) { // Auto fährt wieder
+                if (currentVehicle.checkInFront() == false && currentVehicle.angryometer != 3) { // Auto fährt vor 
+                    currentVehicle.followPath();
+                }
+            }
+            else if (currentVehicle.angryometerInit == true && currentVehicle.velocity == 0) { // Auto steht
+                currentVehicle.followPath();
             }
             else {
                 currentVehicle.followPath();
@@ -118,7 +121,7 @@ var KreuzungsChaos;
         console.log("WORLD" + newCar.mtxWorld.translation);
     }
     function hndTraffic(_difficulty) {
-        let randomFactor = (Math.random() - 0.75) * 100;
+        let randomFactor = fc.Random.default.getRange(-500, 500);
         _difficulty = _difficulty + randomFactor;
         fc.Time.game.setTimer(_difficulty, 0, createCar);
     }

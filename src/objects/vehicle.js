@@ -38,13 +38,14 @@ var KreuzungsChaos;
             this.hitbox = new fc.Node("Hitbox");
             this.angryometer = 0;
             this.angryometerInit = false;
+            this.abortTimer = false;
             this.soundHorn = new fc.Audio("assets/carhorn.mp3");
             this.soundHorn2 = new fc.Audio("assets/carhorn2.mp3");
             this.frontHitNode = new fc.Node("FrontHitNode");
             this.backHitNode = new fc.Node("FrontBackNode");
             this.velocity = 1;
             this.speedlimit = 50;
-            this.acceleration = .5;
+            this.acceleration = 1;
             //Standardmap
             this.street1 = new KreuzungsChaos.Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
             this.street2 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
@@ -245,7 +246,6 @@ var KreuzungsChaos;
         stop() {
             this.velocity = 0;
             if (this.currentStatus != STATUS.STOP) {
-                console.log("angryyy");
                 this.currentStatus = STATUS.STOP;
             }
         }
@@ -255,10 +255,7 @@ var KreuzungsChaos;
             this.moveBack();
         }
         hndAngryOMeter() {
-            console.log("angry o meter initialized");
-            this.angryometerInit = true;
             if (this.velocity == 0) {
-                console.log("going angry");
                 if (this.angryometer != 3) {
                     this.cmpAudio.setAudio(this.soundHorn);
                     this.cmpAudio.play(true);
@@ -272,7 +269,6 @@ var KreuzungsChaos;
         }
         checkOutOfBounds() {
             if (this.mtxWorld.translation.x < -10 || this.mtxWorld.translation.x > 40 || this.mtxWorld.translation.y < -10 || this.mtxWorld.translation.y > 40) {
-                console.log("BRUDER ICH MUSS ENTFERNT WERDEN");
                 return true;
             }
             else {

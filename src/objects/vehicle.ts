@@ -38,6 +38,8 @@ namespace KreuzungsChaos {
         public backRect: fc.Rectangle;
         public angryometer: number = 0;
         public angryometerInit: boolean = false;
+        public timerCounter: number;
+        public abortTimer: boolean = false;
 
         public cmpAudio: fc.ComponentAudio;
         public soundHorn: fc.Audio = new fc.Audio("assets/carhorn.mp3");
@@ -48,7 +50,7 @@ namespace KreuzungsChaos {
 
         public velocity: number = 1;
         public speedlimit: number = 50;
-        public acceleration: number = .5;
+        public acceleration: number = 1;
 
         //Standardmap
         street1: Street = new Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
@@ -349,7 +351,6 @@ namespace KreuzungsChaos {
 
             this.velocity = 0;
             if (this.currentStatus != STATUS.STOP) {
-                console.log("angryyy");
                 this.currentStatus = STATUS.STOP;
             }
 
@@ -365,11 +366,7 @@ namespace KreuzungsChaos {
 
         public hndAngryOMeter(): void {
 
-            console.log("angry o meter initialized");
-            this.angryometerInit = true;
-
             if (this.velocity == 0) {
-                console.log("going angry");
                 if (this.angryometer != 3) {
                     this.cmpAudio.setAudio(this.soundHorn);
                     this.cmpAudio.play(true);
@@ -390,7 +387,6 @@ namespace KreuzungsChaos {
         public checkOutOfBounds(): boolean { // Checks location and removes once out of canvas
 
             if (this.mtxWorld.translation.x < -10 || this.mtxWorld.translation.x > 40 || this.mtxWorld.translation.y < -10 || this.mtxWorld.translation.y > 40) {
-                console.log("BRUDER ICH MUSS ENTFERNT WERDEN");
                 return true;
             }
             else {
