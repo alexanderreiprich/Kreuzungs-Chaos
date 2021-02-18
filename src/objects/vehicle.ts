@@ -49,8 +49,8 @@ namespace KreuzungsChaos {
         public backHitNode: fc.Node = new fc.Node("FrontBackNode");
 
         public velocity: number = 1;
-        public speedlimit: number = 50;
-        public acceleration: number = 1;
+        public speedlimit: number = gameSettings.speedlimit;
+        public acceleration: number = gameSettings.acceleration;
 
         //Standardmap
         street1: Street = new Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
@@ -80,8 +80,8 @@ namespace KreuzungsChaos {
             this.frontHitNode.mtxWorld.translateY(-5); // Moving hitbox creation out of view
             this.backHitNode.mtxWorld.translateY(-5);
 
-            this.frontHitNode.mtxLocal.translateY(1); // Translating hitbox to corresponding car parts
-            this.backHitNode.mtxLocal.translateY(-0.75);
+            this.frontHitNode.mtxLocal.translateY(0.85); // Translating hitbox to corresponding car parts
+            this.backHitNode.mtxLocal.translateY(-0.85);
 
             this.appendChild(this.frontHitNode);
             this.appendChild(this.backHitNode);
@@ -92,15 +92,15 @@ namespace KreuzungsChaos {
             this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
 
-            console.log(this.startLocationID);
-
             this.cmpAudio = new fc.ComponentAudio(this.soundHorn, false, false);
             this.cmpAudio.connect(true);
             this.cmpAudio.volume = 0.1;
 
-            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
-            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
-
+            if (gameSettings.drawHitboxes) {
+                this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
+                this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
+            }
+            
             this.appendChild(this.hitbox);
         }
 
@@ -290,15 +290,12 @@ namespace KreuzungsChaos {
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
-                    //console.log("TOP");
                     break;
                 case -90:
                     this.currentDirection = LOCATION.RIGHT;
-                    //console.log("RIGHT");
                     break;
                 case -180:
                     this.currentDirection = LOCATION.BOT;
-                    //console.log("BOT");
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
@@ -416,7 +413,6 @@ namespace KreuzungsChaos {
 
             else {
                 if (this != _target) {
-                    console.log("COLLISION!!");
                     return true;
                 }
                 else {

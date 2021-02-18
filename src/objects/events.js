@@ -43,16 +43,22 @@ var KreuzungsChaos;
                 case EVENT.RACE:
                     console.log("- - - EVENT: RACE - - -");
                     currentStatus = STATUS.STARTING;
-                    this.execRaceEvent();
+                //this.execRaceEvent();
                 default:
                     console.log("UNDEFINED EVENT");
             }
         }
         static execPoliceEvent() {
             let policeCar = new KreuzungsChaos.Police("Police", new fc.Vector3(40, 40, 0.1));
+            KreuzungsChaos.vehicles.addChild(policeCar);
+            KreuzungsChaos.events.addChild(policeCar);
+            KreuzungsChaos.root.addChild(KreuzungsChaos.events);
         }
-        static execRaceEvent() {
-        }
+        /*         public static execRaceEvent(): void {
+        
+                    
+        
+                } */
         static eventOver() {
             if (currentStatus == STATUS.ENDED) {
                 return true;

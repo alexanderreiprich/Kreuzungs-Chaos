@@ -1,0 +1,15 @@
+{
+
+    "difficulty": 1750,
+    "score": 0,
+    "speedlimit": 50,
+    "acceleration": 1,
+    "patience": 5000,
+
+    "lightswitchCooldown": 2000,
+    
+    "collision": true,
+    "drawHitboxes": false,
+    "color": 5
+
+}

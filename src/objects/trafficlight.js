@@ -35,17 +35,9 @@ var KreuzungsChaos;
                 KreuzungsChaos.switchCooldown = true;
                 this.switchState();
             }
-            // if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
-            //     switchCooldown = true;
-            //     this.switchState();
-            // }
-            // else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
-            //     switchCooldown = true;
-            //     this.emergency();
-            // }
         }
         checkForEmergency() {
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && KreuzungsChaos.switchCooldown == false) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
                 KreuzungsChaos.switchCooldown = true;
                 this.emergency();
             }
@@ -62,7 +54,7 @@ var KreuzungsChaos;
                 this.state = STATE.BOT_RED;
                 this.stateUpdate = 1;
             }
-            fc.Time.game.setTimer(2000, 0, function changeBoolean() {
+            fc.Time.game.setTimer(KreuzungsChaos.gameSettings.lightswitchCooldown, 0, function changeBoolean() {
                 KreuzungsChaos.switchCooldown = false;
             });
             return this.stateUpdate;

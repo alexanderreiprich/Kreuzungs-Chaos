@@ -14,41 +14,50 @@ var KreuzungsChaos;
     window.addEventListener("load", hndLoad);
     KreuzungsChaos.root = new fc.Node("Root");
     KreuzungsChaos.vehicles = new fc.Node("Vehicles");
+    KreuzungsChaos.events = new fc.Node("Events");
     KreuzungsChaos.clrWhite = fc.Color.CSS("white");
     //NOT CHANGEABLE
     KreuzungsChaos.switchCooldown = false;
     let carCounter;
-    let waitingCarCounter;
-    let cmpAudio;
+    let cmpAmbientAudio;
+    let cmpCrashAudio;
     let soundAmbient = new fc.Audio("assets/ambience.mp3");
+    let soundCrash = new fc.Audio("assets/crash.mp3");
     KreuzungsChaos.background = new fc.Node("Background");
     let mtrCurrentLightstate;
     let txtCross = new fc.TextureImage("assets/cross.png");
     KreuzungsChaos.mtrCross = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtCross));
     let txtHitbox = new fc.TextureImage("assets/hitbox.jpg");
     KreuzungsChaos.mtrHitbox = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, txtHitbox));
-    function hndLoad(_event) {
-        //Variables and Constants
+    async function hndLoad(_event) {
+        //Create Game and load Data
         const canvas = document.querySelector("canvas");
-        KreuzungsChaos.txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/bot_red.png");
-        mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
+        await KreuzungsChaos.communicate("src/data/data.json");
+        console.log(KreuzungsChaos.gameSettings.difficulty);
+        //Variables and Constants
         KreuzungsChaos.previousState = 1;
         KreuzungsChaos.currentState = 1;
-        KreuzungsChaos.difficulty = 1750;
+        KreuzungsChaos.difficulty = KreuzungsChaos.gameSettings.difficulty;
         carCounter = 0;
-        waitingCarCounter = 0;
         KreuzungsChaos.score = 0;
+        //Textures
+        KreuzungsChaos.txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/bot_red.png");
+        mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(KreuzungsChaos.clrWhite, KreuzungsChaos.txtCurrentLightstate));
         //Camera
         let cmpCamera = new fc.ComponentCamera();
         cmpCamera.pivot.translate(new fc.Vector3(15, 15, 40));
         cmpCamera.pivot.rotateY(180);
         cmpCamera.backgroundColor = fc.Color.CSS("black");
         //Audio
-        cmpAudio = new fc.ComponentAudio(soundAmbient, true, true);
-        cmpAudio.connect(true);
-        cmpAudio.volume = 0.1;
-        cmpAudio.setAudio(soundAmbient);
-        cmpAudio.play(true);
+        cmpAmbientAudio = new fc.ComponentAudio(soundAmbient, true, true);
+        cmpAmbientAudio.connect(true);
+        cmpAmbientAudio.volume = 0.1;
+        cmpAmbientAudio.setAudio(soundAmbient);
+        cmpAmbientAudio.play(true);
+        cmpCrashAudio = new fc.ComponentAudio(soundCrash, false, false);
+        cmpCrashAudio.connect(true);
+        cmpCrashAudio.volume = 0.25;
+        cmpCrashAudio.setAudio(soundCrash);
         //Viewport
         KreuzungsChaos.viewport = new fc.Viewport;
         KreuzungsChaos.viewport.initialize("Viewport", KreuzungsChaos.root, cmpCamera, canvas);
@@ -71,7 +80,7 @@ var KreuzungsChaos;
             }
             else if (currentVehicle.angryometerInit == false && currentVehicle.velocity == 0) { // Auto hält gerade an
                 currentVehicle.angryometerInit = true;
-                fc.Time.game.setTimer(5000, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
+                fc.Time.game.setTimer(KreuzungsChaos.gameSettings.patience, 3, currentVehicle.hndAngryOMeter.bind(currentVehicle));
             }
             else if (currentVehicle.angryometerInit == true && currentVehicle.velocity != 0) { // Auto fährt wieder
                 if (currentVehicle.checkInFront() == false && currentVehicle.angryometer != 3) { // Auto fährt vor 
@@ -86,7 +95,9 @@ var KreuzungsChaos;
             }
             currentVehicle.mtxWorld.translation = currentVehicle.mtxLocal.translation;
         }
-        //hndCollision();
+        if (KreuzungsChaos.gameSettings.collision == true) {
+            hndCollision();
+        }
         hndEmergency();
         updateScore();
         KreuzungsChaos.viewport.draw();
@@ -121,7 +132,7 @@ var KreuzungsChaos;
         console.log("WORLD" + newCar.mtxWorld.translation);
     }
     function hndTraffic(_difficulty) {
-        let randomFactor = fc.Random.default.getRange(-500, 500);
+        let randomFactor = fc.Random.default.getRange(-750, 150);
         _difficulty = _difficulty + randomFactor;
         fc.Time.game.setTimer(_difficulty, 0, createCar);
     }
@@ -133,7 +144,9 @@ var KreuzungsChaos;
                     console.log("collision: " + currentVehicle.name + " with " + car.name);
                     console.log("car 1 " + currentVehicle.mtxWorld.translation + " car 2 " + car.mtxWorld.translation);
                     console.log("pos 1 " + currentVehicle.frontHitNode.mtxWorld.translation + " pos 2 " + car.mtxWorld.translation);
+                    cmpCrashAudio.play(true);
                     fc.Loop.stop();
+                    hndLoss();
                 }
             }
         }
@@ -147,6 +160,11 @@ var KreuzungsChaos;
     }
     function hndEmergency() {
         KreuzungsChaos.trafficlight.checkForEmergency();
+    }
+    function hndLoss() {
+        setTimeout(function () {
+            window.location.href = "resultscreen.html";
+        }, 5000);
     }
     function updateLights(_number) {
         switch (_number) {
@@ -184,20 +202,25 @@ var KreuzungsChaos;
     }
     function colorGenerator() {
         let colorInt = Math.random();
-        if (colorInt <= 0.2) {
-            return 0;
-        }
-        else if (colorInt > 0.2 && colorInt <= 0.4) {
-            return 1;
-        }
-        else if (colorInt > 0.24 && colorInt <= 0.6) {
-            return 2;
-        }
-        else if (colorInt > 0.6 && colorInt <= 0.8) {
-            return 3;
+        if (KreuzungsChaos.gameSettings.color != 6) {
+            return KreuzungsChaos.gameSettings.color;
         }
         else {
-            return 4;
+            if (colorInt <= 0.2) {
+                return 0;
+            }
+            else if (colorInt > 0.2 && colorInt <= 0.4) {
+                return 1;
+            }
+            else if (colorInt > 0.24 && colorInt <= 0.6) {
+                return 2;
+            }
+            else if (colorInt > 0.6 && colorInt <= 0.8) {
+                return 3;
+            }
+            else {
+                return 4;
+            }
         }
     }
     // function toggleEvent(): Events {

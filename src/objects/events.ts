@@ -57,7 +57,7 @@ namespace KreuzungsChaos {
                 case EVENT.RACE:
                     console.log("- - - EVENT: RACE - - -");
                     currentStatus = STATUS.STARTING;
-                    this.execRaceEvent();
+                    //this.execRaceEvent();
 
                 default:
                     console.log("UNDEFINED EVENT");
@@ -69,15 +69,17 @@ namespace KreuzungsChaos {
         public static execPoliceEvent(): void {
 
             let policeCar: Police = new Police("Police", new fc.Vector3(40, 40, 0.1));
-            
+            vehicles.addChild(policeCar);
+            events.addChild(policeCar);
+            root.addChild(events);
 
         }
 
-        public static execRaceEvent(): void {
+/*         public static execRaceEvent(): void {
 
             
 
-        }
+        } */
 
         public static eventOver(): boolean {
 

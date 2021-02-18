@@ -48,25 +48,11 @@ namespace KreuzungsChaos {
 
             }
 
-            // if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SPACE]) && switchCooldown == false) {
-
-            //     switchCooldown = true;
-            //     this.switchState();
-
-            // }
-
-            // else if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
-
-            //     switchCooldown = true;
-            //     this.emergency();
-
-            // }
-
         }
 
         public checkForEmergency(): void {
        
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT]) && switchCooldown == false) {
+            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
 
                 switchCooldown = true;
                 this.emergency();
@@ -90,7 +76,7 @@ namespace KreuzungsChaos {
                 this.stateUpdate = 1;
             }
 
-            fc.Time.game.setTimer(2000, 0, function changeBoolean(): void {
+            fc.Time.game.setTimer(gameSettings.lightswitchCooldown, 0, function changeBoolean(): void {
                 switchCooldown = false;
             });
 

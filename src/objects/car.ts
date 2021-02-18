@@ -37,6 +37,9 @@ namespace KreuzungsChaos {
                 case 4:
                     txtCar = new fc.TextureImage("assets/car_4.png");
                     break;
+                case 5:
+                    txtCar = new fc.TextureImage("assets/police.png");
+                    break;
 
                 default:
                     break;

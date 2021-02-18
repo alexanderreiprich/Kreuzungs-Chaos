@@ -44,8 +44,8 @@ var KreuzungsChaos;
             this.frontHitNode = new fc.Node("FrontHitNode");
             this.backHitNode = new fc.Node("FrontBackNode");
             this.velocity = 1;
-            this.speedlimit = 50;
-            this.acceleration = 1;
+            this.speedlimit = KreuzungsChaos.gameSettings.speedlimit;
+            this.acceleration = KreuzungsChaos.gameSettings.acceleration;
             //Standardmap
             this.street1 = new KreuzungsChaos.Street("TOPSTREET", new fc.Vector3(13.75, 35, .1), new fc.Vector3(13.75, 18, .1), new fc.Vector3(16.25, 18, .1), new fc.Vector3(16.25, 35, .1), new fc.Vector3(13.75, 22, .1));
             this.street2 = new KreuzungsChaos.Street("RIGHTSTREET", new fc.Vector3(35, 16.25, .1), new fc.Vector3(18, 16.25, .1), new fc.Vector3(18, 13.75, .1), new fc.Vector3(35, 13.75, .1), new fc.Vector3(22, 16.25, .1));
@@ -62,20 +62,21 @@ var KreuzungsChaos;
             this.backHitNode.addComponent(new fc.ComponentTransform);
             this.frontHitNode.mtxWorld.translateY(-5); // Moving hitbox creation out of view
             this.backHitNode.mtxWorld.translateY(-5);
-            this.frontHitNode.mtxLocal.translateY(1); // Translating hitbox to corresponding car parts
-            this.backHitNode.mtxLocal.translateY(-0.75);
+            this.frontHitNode.mtxLocal.translateY(0.85); // Translating hitbox to corresponding car parts
+            this.backHitNode.mtxLocal.translateY(-0.85);
             this.appendChild(this.frontHitNode);
             this.appendChild(this.backHitNode);
             this.frontRect = new fc.Rectangle(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
             this.backRect = new fc.Rectangle(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, 2, 2, fc.ORIGIN2D.CENTER);
             this.frontRect.position = this.frontHitNode.mtxLocal.translation.toVector2();
             this.backRect.position = this.backHitNode.mtxLocal.translation.toVector2();
-            console.log(this.startLocationID);
             this.cmpAudio = new fc.ComponentAudio(this.soundHorn, false, false);
             this.cmpAudio.connect(true);
             this.cmpAudio.volume = 0.1;
-            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
-            // this.hitbox.appendChild(new Background(mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
+            if (KreuzungsChaos.gameSettings.drawHitboxes) {
+                this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.frontHitNode.mtxLocal.translation.x, this.frontHitNode.mtxLocal.translation.y, .25)));
+                this.hitbox.appendChild(new KreuzungsChaos.Background(KreuzungsChaos.mtrHitbox, new fc.Vector2(1, 1), new fc.Vector3(this.backHitNode.mtxLocal.translation.x, this.backHitNode.mtxLocal.translation.y, .25)));
+            }
             this.appendChild(this.hitbox);
         }
         static calculateRotation(_currentPos, _targetPos) {
@@ -202,15 +203,12 @@ var KreuzungsChaos;
                     break;
                 case -0:
                     this.currentDirection = LOCATION.TOP;
-                    //console.log("TOP");
                     break;
                 case -90:
                     this.currentDirection = LOCATION.RIGHT;
-                    //console.log("RIGHT");
                     break;
                 case -180:
                     this.currentDirection = LOCATION.BOT;
-                    //console.log("BOT");
                     break;
                 case 90:
                     this.currentDirection = LOCATION.LEFT;
@@ -287,7 +285,6 @@ var KreuzungsChaos;
                 return false;
             else {
                 if (this != _target) {
-                    console.log("COLLISION!!");
                     return true;
                 }
                 else {
