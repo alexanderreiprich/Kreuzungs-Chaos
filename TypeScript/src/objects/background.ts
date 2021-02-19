@@ -1,3 +1,6 @@
+///<reference path= "gameobject.ts"/>
+///<reference path= "vehicle.ts"/>
+
 namespace KreuzungsChaos {
 
     import fc = FudgeCore;
@@ -9,7 +12,6 @@ namespace KreuzungsChaos {
             super("Background", _size, _position);
 
             let cmpMaterial: fc.ComponentMaterial = new fc.ComponentMaterial(_material);
-            //cmpMaterial.pivot.scale(fc.Vector2.ONE(1));
             this.addComponent(cmpMaterial);
 
         }

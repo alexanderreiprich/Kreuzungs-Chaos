@@ -50,19 +50,6 @@ namespace KreuzungsChaos {
 
         }
 
-        public checkForEmergency(): void {
-       
-            if (fc.Keyboard.isPressedOne([fc.KEYBOARD_CODE.SHIFT_LEFT])) {
-
-                switchCooldown = true;
-                this.emergency();
-
-            }
-
-            //FIX EMERGENCY BUTTON
-
-        }
-
         public switchState(): number { // Switch state from bot red to side red or the other way around
 
             if (this.state == STATE.BOT_RED || this.state == STATE.ALL_RED) {
@@ -79,20 +66,6 @@ namespace KreuzungsChaos {
             fc.Time.game.setTimer(gameSettings.lightswitchCooldown, 0, function changeBoolean(): void {
                 switchCooldown = false;
             });
-
-            return this.stateUpdate;
-
-        }
-
-        public emergency(): number { // Switch state to all red
-
-            previousState = this.state.valueOf();
-            this.state = STATE.ALL_RED;
-            this.stateUpdate = 0;
-            fc.Time.game.setTimer(2000, 1, function changeBoolean(): void {
-                switchCooldown = false;
-            });
-            fc.Time.game.setTimer(2000, 1, this.switchState); 
 
             return this.stateUpdate;
 

@@ -1,13 +1,6 @@
 namespace KreuzungsChaos {
 
     import fc = FudgeCore;
-    //import fcaid = FudgeAid;
-
-    export enum VEHICLE_TYPE {
-
-        CAR, TRUCK, BUS, POLICE, PARAMEDIC
-
-    }
 
     window.addEventListener("load", hndLoad);
 
@@ -17,13 +10,10 @@ namespace KreuzungsChaos {
     export let txtCurrentLightstate: fc.TextureImage;
     export let root: fc.Node = new fc.Node("Root");
     export let vehicles: fc.Node = new fc.Node("Vehicles");
-    export let events: fc.Node = new fc.Node("Events");
     export const clrWhite: fc.Color = fc.Color.CSS("white");
 
-    //CHANGEABLE
     export let difficulty: number;
 
-    //NOT CHANGEABLE
     export let switchCooldown: boolean = false;
     let carCounter: number;
 
@@ -49,8 +39,6 @@ namespace KreuzungsChaos {
         //Create Game and load Data
         const canvas: HTMLCanvasElement = document.querySelector("canvas");
         await communicate("src/data/data.json");
-        console.log(gameSettings.difficulty);
-        
 
         //Variables and Constants
         previousState = 1;
@@ -90,8 +78,6 @@ namespace KreuzungsChaos {
         createCar();
         hndTraffic(difficulty);
         window.addEventListener("click", hndClick);
-
-        //Timers
 
         //Initialize Loop
         fc.Loop.addEventListener(fc.EVENT.LOOP_FRAME, hndLoop);
@@ -136,9 +122,6 @@ namespace KreuzungsChaos {
         if (gameSettings.collision == true) {
             hndCollision();
         }
-        
-
-        hndEmergency();
 
         updateScore();
 
@@ -191,8 +174,6 @@ namespace KreuzungsChaos {
 
         vehicles.addChild(newCar);
         root.addChild(vehicles);
-        console.log("LOCAL" + newCar.mtxLocal.translation);
-        console.log("WORLD" + newCar.mtxWorld.translation);
 
     }
 
@@ -206,7 +187,7 @@ namespace KreuzungsChaos {
 
     }
 
-    function hndCollision(): void {
+    function hndCollision(): void { // Handles collisions
 
         for (let car of vehicles.getChildren()) {
 
@@ -216,8 +197,6 @@ namespace KreuzungsChaos {
                 if (currentVehicle.checkCollision(<Vehicle>car) && currentVehicle != <Vehicle>car) {
 
                     console.log("collision: " + currentVehicle.name + " with " + car.name);
-                    console.log("car 1 " + currentVehicle.mtxWorld.translation + " car 2 " + car.mtxWorld.translation);
-                    console.log("pos 1 " + currentVehicle.frontHitNode.mtxWorld.translation + " pos 2 " + car.mtxWorld.translation);
                     cmpCrashAudio.play(true);
                     fc.Loop.stop();
                     hndLoss();
@@ -230,7 +209,7 @@ namespace KreuzungsChaos {
 
     }
 
-    function hndClick(): void {
+    function hndClick(): void { // Handler -> Click
 
         if (switchCooldown == false) {
             trafficlight.hndControl();
@@ -241,18 +220,18 @@ namespace KreuzungsChaos {
 
     }
 
-    function hndEmergency(): void {
-
-        trafficlight.checkForEmergency();
-    }
-
-    function hndLoss(): void {
+    function hndLoss(): void { // Handler -> Loss
+        window.localStorage.setItem("score", score.toString());
+        if (score > +window.localStorage.getItem("highscore")) {
+            window.localStorage.setItem("highscore", score.toString());
+        }
 
         setTimeout(function (): void {
             window.location.href = "resultscreen.html";
         },         5000);
 
     }
+
 
     function updateLights(_number: number): void { // Updates lights after input
 
@@ -299,7 +278,7 @@ namespace KreuzungsChaos {
 
     }
 
-    function updateScore(): void {
+    function updateScore(): void { // Update Score on HUD
 
         let divScore: HTMLDivElement = document.querySelector("div#scoreNumber");
         divScore.innerHTML = score.toString();
@@ -333,12 +312,5 @@ namespace KreuzungsChaos {
         
 
     }
-
-    // function toggleEvent(): Events {
-
-    //     let event: Events = new Events();
-    //     return event;
-
-    // }
 
 }

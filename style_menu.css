@@ -57,6 +57,13 @@ img {
 
 }
 
+div {
+
+    font-size: 64px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+}
+
 .button {
     position: absolute; 
     padding: 15px 32px;
