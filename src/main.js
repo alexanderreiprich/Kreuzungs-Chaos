@@ -9,13 +9,6 @@ var KreuzungsChaos;
 })(KreuzungsChaos || (KreuzungsChaos = {}));
 var KreuzungsChaos;
 (function (KreuzungsChaos) {
-    window.addEventListener("load", hndLoad);
-    function hndLoad(_event) {
-        window.localStorage.setItem("highscore", "0");
-    }
-})(KreuzungsChaos || (KreuzungsChaos = {}));
-var KreuzungsChaos;
-(function (KreuzungsChaos) {
     var fc = FudgeCore;
     window.addEventListener("load", hndLoad);
     KreuzungsChaos.root = new fc.Node("Root");
