@@ -9,7 +9,7 @@
     "lightswitchCooldown": 2000,
     
     "collision": true,
-    "drawHitboxes": false,
+    "drawHitboxes": true,
     "color": 6
 
 }
