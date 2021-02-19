@@ -28,9 +28,6 @@ namespace KreuzungsChaos {
     let mtrCurrentLightstate: fc.Material;
     export let trafficlight: Trafficlight;
 
-    let txtCross: fc.TextureImage = new fc.TextureImage("assets/cross.png");
-    export let mtrCross: fc.Material = new fc.Material("Cross", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCross));
-
     let txtHitbox: fc.TextureImage = new fc.TextureImage("assets/hitbox.jpg");
     export let mtrHitbox: fc.Material = new fc.Material("Hitbox", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtHitbox));
 
@@ -48,7 +45,7 @@ namespace KreuzungsChaos {
         score = 0;
 
         //Textures
-        txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/bot_red.png");
+        txtCurrentLightstate = new fc.TextureImage("assets/bot_red.png");
         mtrCurrentLightstate = new fc.Material("Lightstate", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
 
         //Camera
@@ -239,7 +236,7 @@ namespace KreuzungsChaos {
             case 0:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/all_red.png");
+                txtCurrentLightstate = new fc.TextureImage("assets/all_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_All_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 0);
 
@@ -250,7 +247,7 @@ namespace KreuzungsChaos {
             case 1:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/bot_red.png");
+                txtCurrentLightstate = new fc.TextureImage("assets/bot_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Bot_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 1);
 
@@ -262,7 +259,7 @@ namespace KreuzungsChaos {
             case 2:
                 background.removeChild(trafficlight);
 
-                txtCurrentLightstate = new fc.TextureImage("assets/trafficlight_states/side_red.png");
+                txtCurrentLightstate = new fc.TextureImage("assets/side_red.png");
                 mtrCurrentLightstate = new fc.Material("Lightstate_Side_Red", fc.ShaderTexture, new fc.CoatTextured(clrWhite, txtCurrentLightstate));
                 trafficlight = new Trafficlight(mtrCurrentLightstate, new fc.Vector2(32, 32), new fc.Vector3(15, 15, 3), 2);
 
