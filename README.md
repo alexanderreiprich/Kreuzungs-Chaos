@@ -1,7 +1,7 @@
 # Kreuzungs-Chaos
 Endabgabe PRIMA2021
 
-< Link to the Game (WIP!) >
+< Link to the Game >
 
 https://alexanderreiprich.github.io/Kreuzungs-Chaos/startscreen.html
 
